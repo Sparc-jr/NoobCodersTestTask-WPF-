@@ -81,7 +81,6 @@ namespace CSVToDBWithElasticIndexing
                 using (var reader = new StreamReader(fileCSVPath))
                 using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
                 {
-                    //AppResources.dBaseConnection.Open();
                     csv.Read();
                     while (csv.Read())
                     {

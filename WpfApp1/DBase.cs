@@ -193,7 +193,6 @@ namespace CSVToDBWithElasticIndexing
         {
             try
             {
-                //AppResources.dBaseConnection.Open();
                 var sQLCommand = new SQLiteCommand();
                 sQLCommand.Connection = AppResources.dBaseConnection;
                 foreach (long id in idList)
