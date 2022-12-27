@@ -6,6 +6,7 @@ using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -17,7 +18,6 @@ namespace CSVToDBWithElasticIndexing
     public partial class MainWindow : Window
     {
 
-        List<CheckBox> checkBoxColumnToIndex = new List<CheckBox>();
         public MainWindow()
         {
             InitializeComponent();
@@ -63,8 +63,27 @@ namespace CSVToDBWithElasticIndexing
         }
         private void RefreshComboBox()
         {
-            HeadersComboBox.ItemsSource = DataGridSource.Columns.Where(x => x.Header.ToString().ToLower() != "id").Select(x => x.Header);
+            //var checkedColumnsList = new List<CheckedColumn>();
+            //foreach (var field in Post.FieldsToIndex)
+            //checkedColumnsList.Add(new (field.isChecked, field.name));
+            //HeadersComboBox.ItemsSource = checkedColumnsList;
+            HeadersComboBox.ItemsSource = Post.FieldsToIndex.Where(x => x.name.ToLower() != "id"); 
+            //was HeadersComboBox.ItemsSource = DataGridSource.Columns.Where(x => x.Header.ToString().ToLower() != "id").Select(x => x.Header);
         }
+
+        public class CheckedColumn
+        {
+            public CheckedColumn(bool isChecked, string name)
+            {
+                this.isChecked = isChecked;
+                this.name = name;
+            }
+
+            public Boolean isChecked { get; set; }
+            public String name { get; set; }
+        }
+
+
 
         internal void RefreshDataGridView()
         {
@@ -95,6 +114,23 @@ namespace CSVToDBWithElasticIndexing
             RefreshDataGridView();
             searchButton_Click(sender, e);            
         }
+
+        private void OnComboBoxCheckBoxChecked(object sender, RoutedEventArgs e)
+        {
+            var selectedFields = new List<string>();
+            foreach (var item in HeadersComboBox.Items)
+            {
+                if (HeadersComboBox.SelectedItem == item) selectedFields.Add(item as string);
+            }
+           
+        }
+
+        private void OnComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox comboBox = (ComboBox)sender;
+            comboBox.SelectedItem = null;
+        }
+
 
         private void Window_Closed(object sender, EventArgs e)
         {

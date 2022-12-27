@@ -6,10 +6,10 @@ namespace CSVToDBWithElasticIndexing
     public class Post
     {
         private static int fieldsCount;
-        private static List<int> fieldsToIndex;
+        private static List<FieldsToIndexSelection> fieldsToIndex;
         private List<object> fields;
 
-        public static List<bool> FieldsToIndex;
+        public static List<FieldsToIndexSelection> FieldsToIndex;
         public static int FieldsCount;
         public static List<string> namesOfFields;
         public static List<Type> typesOfFields;
@@ -19,6 +19,18 @@ namespace CSVToDBWithElasticIndexing
         {
             Fields = new List<object>();
         }
+    }
+
+    public class FieldsToIndexSelection
+    {
+        public FieldsToIndexSelection(bool isChecked, string name)
+        {
+            this.isChecked = isChecked;
+            this.name = name;
+        }
+
+        public Boolean isChecked { get; set; }
+        public String name { get; set; }
     }
 
     public class Record

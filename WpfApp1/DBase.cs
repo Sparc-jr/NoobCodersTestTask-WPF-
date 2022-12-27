@@ -27,6 +27,7 @@ namespace CSVToDBWithElasticIndexing
             var post = new Post();
             Post.namesOfFields = new List<string>();
             Post.typesOfFields = new List<Type>();
+            Post.FieldsToIndex = new List<FieldsToIndexSelection>();
             var sqlCommand = new SQLiteCommand($"SELECT * FROM {Path.GetFileNameWithoutExtension(AppResources.dBaseFileName)}", AppResources.dBaseConnection);
             var dataReader = sqlCommand.ExecuteReader();
             Post.FieldsCount = dataReader.FieldCount;
@@ -34,7 +35,9 @@ namespace CSVToDBWithElasticIndexing
             {
                 Post.namesOfFields.Add(dataReader.GetName(i));
                 Post.typesOfFields.Add(TypesResponser.GetDBaseColumnType(dataReader.GetDataTypeName(i)));
+                Post.FieldsToIndex.Add(new (false, Post.namesOfFields[i]));
             }
+            Post.FieldsToIndex[1].isChecked = true;
         }
             public static bool CreateDBase(string dBaseName)
         {

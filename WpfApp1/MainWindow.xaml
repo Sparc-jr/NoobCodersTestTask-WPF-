@@ -31,8 +31,16 @@
             <Label x:Name="Label1" Content="Status" Height="23"/>
         </StatusBar>
         <Button Content="Удалить выбранные записи" HorizontalAlignment="Left" Margin="10,0,0,38" Width="185" Height="20" VerticalAlignment="Bottom" Grid.Row="2" Click="Delete_Click"/>
-        <ComboBox x:Name="HeadersComboBox" HorizontalAlignment="Left" Margin="322,8,0,0" VerticalAlignment="Top" Width="120" AutomationProperties.IsColumnHeader="True" 
-                  /> 
-
+        <ComboBox x:Name="HeadersComboBox" HorizontalAlignment="Left" Margin="322,8,0,0" VerticalAlignment="Top" Width="120" AutomationProperties.IsColumnHeader="True" SelectionChanged="OnComboBoxSelectionChanged" >
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <CheckBox IsChecked="{Binding isChecked}" Width="20" VerticalAlignment="Center" Checked="OnComboBoxCheckBoxChecked" Unchecked="OnComboBoxCheckBoxChecked" />
+                        <!--CheckBox IsChecked="{Binding IsSelected}" Width="20" VerticalAlignment="Center" Checked="OnComboBoxCheckBoxChecked" Unchecked="OnComboBoxCheckBoxChecked" /-->
+                        <TextBlock Text="{Binding name}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
     </Grid>
 </Window>
