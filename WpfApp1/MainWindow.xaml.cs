@@ -79,7 +79,6 @@ namespace CSVToDBWithElasticIndexing
             sQLiteDataAdapter.Fill(dataSet);
             DataGridSource.ItemsSource = dataSet.Tables[0].DefaultView;
         }
-// на данный момент индексация осуществляется по умолчанию по первому столбцу           
         private void searchButton_Click(object sender, RoutedEventArgs e)
         {
             {
