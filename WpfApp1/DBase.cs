@@ -184,7 +184,7 @@ namespace CSVToDBWithElasticIndexing
             var postsTable = new List<Record>();
             foreach (DataRow row in dataTable.Rows)
             {
-                postsTable.Add(new Record((long)row["id"], (string)row[fieldsNames[1]])); // на данный момент индексация осуществляется по умолчанию по первому столбцу  
+                postsTable.Add(new Record((long)row["id"], (new List<object>() { (string)row[fieldsNames[1]] }))); // на данный момент индексация осуществляется по умолчанию по первому столбцу  
             }
             return postsTable;
         }

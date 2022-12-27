@@ -1,9 +1,10 @@
-﻿<Window x:Class="CSVToDBWithElasticIndexing.MainWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CSVToDBWithElasticIndexing"
+        xmlns:Data="clr-namespace:System.Data;assembly=System.Data.Common" x:Class="CSVToDBWithElasticIndexing.MainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Height="457" Width="800" Background="White" Closed="Window_Closed">
     <Grid x:Name="Canvas" Loaded="Grid_Loaded">
@@ -30,6 +31,8 @@
             <Label x:Name="Label1" Content="Status" Height="23"/>
         </StatusBar>
         <Button Content="Удалить выбранные записи" HorizontalAlignment="Left" Margin="10,0,0,38" Width="185" Height="20" VerticalAlignment="Bottom" Grid.Row="2" Click="Delete_Click"/>
+        <ComboBox x:Name="HeadersComboBox" HorizontalAlignment="Left" Margin="322,8,0,0" VerticalAlignment="Top" Width="120" AutomationProperties.IsColumnHeader="True" 
+                  /> 
 
     </Grid>
 </Window>

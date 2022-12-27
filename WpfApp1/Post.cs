@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CSVToDBWithElasticIndexing
 {
@@ -27,11 +24,11 @@ namespace CSVToDBWithElasticIndexing
     public class Record
     {
         public long Id { get; set; }
-        public object Text { get; set; }
-        public Record(long n, object text)
+        public List<object> ItemsToIndex { get; set; }
+        public Record(long n, List<object> items)
         {
             Id = n;
-            Text = text;
+            ItemsToIndex = items;
         }
     }
 }

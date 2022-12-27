@@ -1,14 +1,7 @@
-﻿//using Elastic.Apm.Api;
-using Elasticsearch.Net;
-//using Microsoft.Extensions.Hosting;
+﻿using Elasticsearch.Net;
 using Nest;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Media.Media3D;
-using System.Windows;
-using static System.Net.Mime.MediaTypeNames;
-using System.Text.RegularExpressions;
 
 namespace CSVToDBWithElasticIndexing
 {
@@ -54,7 +47,7 @@ namespace CSVToDBWithElasticIndexing
                 .Size(20)
                 .Index(indexName)
                 .Query(q => q
-                    .Term(t => t.Text, stringToSearch)
+                    .Term(t => t.ItemsToIndex, stringToSearch)
             )
                 );
             return searchResponse.Documents.ToList();

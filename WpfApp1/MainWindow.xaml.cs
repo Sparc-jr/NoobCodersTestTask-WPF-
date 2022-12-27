@@ -1,27 +1,13 @@
-﻿using CsvHelper;
-using Microsoft.Win32;
-using Nest;
+﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Data;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Data.SQLite;
 using System.IO;
-using CSVToDBWithElasticIndexing;
-using Microsoft.SqlServer.Server;
-using System.Drawing;
-using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
-using System.Data.SqlClient;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace CSVToDBWithElasticIndexing
 {
@@ -57,7 +43,9 @@ namespace CSVToDBWithElasticIndexing
                 RefreshDataGridView();
             }
             ClearDataGridSearchResult();
+            RefreshComboBox();
         }
+
         private void Button_OpenDB_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -67,11 +55,17 @@ namespace CSVToDBWithElasticIndexing
             Label1.Content = DBase.OpenFile(openFileDialog.FileName) ? "Connected" : "Disconnected";
             RefreshDataGridView();
             ClearDataGridSearchResult();
+            RefreshComboBox();
         }
         internal void ClearDataGridSearchResult()
         {
                     dataGridSearchResult.ItemsSource = null;
         }
+        private void RefreshComboBox()
+        {
+            HeadersComboBox.ItemsSource = DataGridSource.Columns.Where(x => x.Header.ToString().ToLower() != "id").Select(x => x.Header);
+        }
+
         internal void RefreshDataGridView()
         {
             SQLiteDataAdapter sQLiteDataAdapter = new SQLiteDataAdapter($"SELECT * FROM {Path.GetFileNameWithoutExtension(AppResources.dBaseFileName)}", AppResources.dBaseConnection);
