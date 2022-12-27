@@ -16,5 +16,6 @@ namespace CSVToDBWithElasticIndexing
         public static string dBaseFileName;
         public static SQLiteConnection dBaseConnection;
         public static ElasticClient elasticSearchClient = ElasticsearchHelper.GetESClient();
+        public static string indexName = "posts";
     }
 }

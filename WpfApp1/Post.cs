@@ -27,8 +27,8 @@ namespace CSVToDBWithElasticIndexing
     public class Record
     {
         public long Id { get; set; }
-        public string Text { get; set; }
-        public Record(long n, string text)
+        public object Text { get; set; }
+        public Record(long n, object text)
         {
             Id = n;
             Text = text;

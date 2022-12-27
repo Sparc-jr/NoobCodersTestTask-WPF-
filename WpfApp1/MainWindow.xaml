@@ -8,9 +8,9 @@
         Title="MainWindow" Height="457" Width="800" Background="White">
     <Grid x:Name="Canvas" Loaded="Grid_Loaded">
         <Grid.RowDefinitions>
-            <RowDefinition Height="253*"/>
-            <RowDefinition Height="26.04"/>
-            <RowDefinition Height="162*"/>
+            <RowDefinition Height="73*"/>
+            <RowDefinition Height="21"/>
+            <RowDefinition Height="67*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="643*"/>
@@ -23,13 +23,13 @@
         <DataGrid x:Name="DataGridSource" x:FieldModifier="public" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,35,0,2" Grid.ColumnSpan="2" Background="White"/>
 
 
-        <Button x:Name="searchButton" Content="Button" Margin="10,0,0,0" VerticalAlignment="Center" RenderTransformOrigin="0.523,0.463" Height="20" HorizontalAlignment="Left" Width="90" Grid.Column="1" Grid.Row="1" Click="searchButton_Click"/>
-        <TextBox x:Name="textBox1" Margin="10,0,10,0" TextWrapping="Wrap" Text="Введите текст для поиска" Height="18" VerticalAlignment="Center" Grid.Row="1"/>
+        <Button x:Name="searchButton" Content="Искать" Margin="10,0,0,0" VerticalAlignment="Center" RenderTransformOrigin="0.523,0.463" Height="20" HorizontalAlignment="Left" Width="90" Grid.Column="1" Grid.Row="1" Click="searchButton_Click"/>
+        <TextBox x:Name="textBox1" Margin="10,0,10,0" TextWrapping="Wrap" Text="Введите текст для поиска" Height="18" VerticalAlignment="Center" Grid.Row="1" Loaded="textBox1_Loaded"/>
         <DataGrid x:Name="dataGridSearchResult" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,3,0,63" Grid.ColumnSpan="2" Background="White" Grid.Row="2"/>
         <StatusBar x:Name="StatusBar1" Height="24" VerticalAlignment="Bottom" Grid.ColumnSpan="3" Grid.Row="2">
             <Label x:Name="Label1" Content="Status" Height="23"/>
         </StatusBar>
-        <Button Content="Удалить выбранные записи" HorizontalAlignment="Left" Margin="10,0,0,38" Width="185" Height="20" VerticalAlignment="Bottom" Grid.Row="2"/>
+        <Button Content="Удалить выбранные записи" HorizontalAlignment="Left" Margin="10,0,0,38" Width="185" Height="20" VerticalAlignment="Bottom" Grid.Row="2" Click="Delete_Click"/>
 
     </Grid>
 </Window>

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Windows.Media.Media3D;
 using System.Windows;
 using static System.Net.Mime.MediaTypeNames;
+using System.Text.RegularExpressions;
 
 namespace CSVToDBWithElasticIndexing
 {
@@ -21,7 +22,7 @@ namespace CSVToDBWithElasticIndexing
             var connectionPool = new CloudConnectionPool(cloudID, credentials);
             var connectionSettings = new ConnectionSettings(connectionPool)
                 .EnableApiVersioningHeader()
-                .DefaultIndex("posts")
+                .DefaultIndex(AppResources.indexName)
                 .ThrowExceptions()
                 .EnableDebugMode();
             var elasticClient = new ElasticClient(connectionSettings);
@@ -51,8 +52,8 @@ namespace CSVToDBWithElasticIndexing
             {
                 postsToIndex.Add(new Record((long)posts[i].Fields[0], posts[i].Fields[1].ToString()));
             }*/
-            var postsToIndex = DBase.PrepareDataForIndexing();
-            var response = elasticClient.IndexMany(postsToIndex);
+            var postsToIndex = DBase.PrepareDataForIndexing(Post.namesOfFields.ToArray());
+            var response = elasticClient.IndexMany(postsToIndex, AppResources.indexName);
 
             if (response.IsValid) Messages.InfoMessage("Данные успешно импортированы. Индекс создан");
             else Messages.ErrorMessage(response.ToString());
@@ -70,10 +71,14 @@ namespace CSVToDBWithElasticIndexing
             return searchResponse.Documents.ToList();
         }
 
-        public static void DeleteDocument(ElasticClient elasticClient, string indexName, Record post)
+        public static void DeleteDocument(ElasticClient elasticClient, string indexName, params long[] idList)
         {
-            var deleteResponse = elasticClient.Delete<Record>(post.Id);
-            MessageBox.Show(deleteResponse.IsValid ? $"Запись №{post.Id} успешно удалена" : deleteResponse.ToString());
+            foreach (long id in idList)
+            {
+                var deleteResponse = elasticClient.Delete<Record>(id, id => id.Index(indexName));
+                if (deleteResponse.IsValid) Messages.InfoMessage($"Запись №{id} успешно удалена");
+                else Messages.ErrorMessage(deleteResponse.ToString());
+            }
         }
     }
 

@@ -22,6 +22,7 @@ using CSVToDBWithElasticIndexing;
 using Microsoft.SqlServer.Server;
 using System.Drawing;
 using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
+using System.Data.SqlClient;
 
 namespace CSVToDBWithElasticIndexing
 {
@@ -57,8 +58,7 @@ namespace CSVToDBWithElasticIndexing
                 RefreshDataGridView();
             }
 
-            //List<Post> postsTable = PrepareDataForIndexing();
-            //ElasticsearchHelper.CreateDocument(elasticSearchClient, "posts", postsTable);
+
         }
         private void Button_OpenDB_Click(object sender, RoutedEventArgs e)
         {
@@ -72,8 +72,7 @@ namespace CSVToDBWithElasticIndexing
             
             
             MessageBox.Show("Файл открыт");
-            //List<Post> postsTable = PrepareDataForIndexing();
-            //ElasticsearchHelper.CreateDocument(Form1.elasticSearchClient, "posts", postsTable);
+
         }
 
         /*private List<Post> PrepareDataForIndexing()
@@ -91,13 +90,13 @@ namespace CSVToDBWithElasticIndexing
             return postsTable;
         }*/
 
-        private void RefreshDataGridView()
+        internal void RefreshDataGridView()
         {
             SQLiteDataAdapter sQLiteDataAdapter = new SQLiteDataAdapter($"SELECT * FROM {Path.GetFileNameWithoutExtension(AppResources.dBaseFileName)}", AppResources.dBaseConnection);
             DataSet dataSet = new DataSet();
             sQLiteDataAdapter.Fill(dataSet);
             DataGridSource.ItemsSource = dataSet.Tables[0].DefaultView;
-            DrawCheckBoxesInColumns(); //отрисовка чекбоксов в заголовках колонок
+            //DrawCheckBoxesInColumns(); //отрисовка чекбоксов в заголовках колонок
         }
         private void DrawCheckBoxesInColumns()       // добавляем чекбоксы в заголовки столбцов для выбора что индексировать
         {                                            // на данный момент индексация осуществляется по умолчанию по первому столбцу           
@@ -129,9 +128,29 @@ namespace CSVToDBWithElasticIndexing
         private void searchButton_Click(object sender, RoutedEventArgs e)
         {
             {
-                var searchResult = ElasticsearchHelper.SearchDocument(AppResources.elasticSearchClient, "posts", textBox1.Text);
+                var searchResult = ElasticsearchHelper.SearchDocument(AppResources.elasticSearchClient, AppResources.indexName, textBox1.Text);
                 dataGridSearchResult.ItemsSource = searchResult;
             }
+        }
+        private void textBox1_Loaded(object sender, RoutedEventArgs e)
+        {
+            textBox1.SelectAll();
+        }
+
+        private void Delete_Click(object sender, RoutedEventArgs e)
+        {
+            var selected = dataGridSearchResult.SelectedItems
+                .OfType<Record>().Select(x => x.Id)
+                .ToArray();
+            /*var idsSelected = new int[selected.Length];
+            for (int i = 0; i< selected.Length;i++)
+            {
+                idsSelected[i] = (int)(selected[i].Id);
+            }*/
+            DBase.DeleteDBaseRow(selected);
+            ElasticsearchHelper.DeleteDocument(AppResources.elasticSearchClient, AppResources.indexName, selected);
+            RefreshDataGridView();
+            searchButton_Click(sender, e);            
         }
     }
 }

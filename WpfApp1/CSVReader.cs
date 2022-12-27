@@ -22,8 +22,10 @@ namespace CSVToDBWithElasticIndexing
         {
             AppResources.CSVFileName = fileName;
             AppResources.dBaseFileName = $"{Path.GetDirectoryName(fileName)}\\{Path.GetFileNameWithoutExtension(fileName)}.db";
+            AppResources.indexName = Path.GetFileNameWithoutExtension(fileName).ToLower();
             CSVReader.ReadCSVHeader(fileName, AppResources.dBaseFileName);
-            if (DBase.CreateDBASE(AppResources.dBaseFileName) == false) return false;
+            CSVReader.ReadCSVTypes(fileName, AppResources.dBaseFileName);
+            if (DBase.CreateDBase(AppResources.dBaseFileName) == false) return false;
             return CSVReader.ReadCSVandSaveToDataBase(fileName, AppResources.dBaseFileName);
         }
         
@@ -51,6 +53,24 @@ namespace CSVToDBWithElasticIndexing
             return true;
         }
 
+
+        public static void ReadCSVTypes(string fileCSVPath, string fileDBasePath)
+        {
+            using (var reader = new StreamReader(fileCSVPath))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+                csv.Read();
+                csv.Read();
+                var recordTypes = new List<Type>();
+                for (int i = 0; i < Post.FieldsCount; i++)
+                {
+                    var field = csv.GetField(i);
+                    recordTypes.Add(TypesResponser.GetObjectType(field));
+                }
+                Post.typesOfFields = recordTypes;
+            }
+        }
+
         public static bool ReadCSVandSaveToDataBase(string fileCSVPath, string fileDBasePath)
         {
             string[] fields = null;
@@ -63,7 +83,7 @@ namespace CSVToDBWithElasticIndexing
                     AppResources.dBaseConnection.Open();
                     bool firstRecord = true;
                     csv.Read();
-                    var recordTypes = new List<Type>();
+                    //var recordTypes = new List<Type>();
                     var fieldsToIndex = new List<bool>();
                     //var postsTable = new List<Post>();   // подготовка фиксированной коллекции записей для индексации (по ID и первому столбцу)
                     while (csv.Read())
@@ -72,21 +92,22 @@ namespace CSVToDBWithElasticIndexing
                         for (int i = 0; i < Post.FieldsCount; i++)
                         {
                             var field = csv.GetField(i);
-                            nextPost.Fields.Add(field);
-                            if (firstRecord) recordTypes.Add(field.GetType());   // TO DO: распознавание типов полей таблицы
+                            //if (firstRecord) recordTypes.Add(TypesResponser.GetObjectType(field));   // TO DO: распознавание типов полей таблицы
                             if (i <= 0) fieldsToIndex.Add(true);
                             else fieldsToIndex.Add(false);
+                            nextPost.Fields.Add(Convert.ChangeType(field, Post.typesOfFields[i]));
                         }
                         if (firstRecord)
                         {
-                            Post.typesOfFields = recordTypes;
+                            //Post.typesOfFields = recordTypes;
                             Post.FieldsToIndex = fieldsToIndex;
                         }
                         firstRecord = false;
                         DBase.AddDataToBase(fileDBasePath, nextPost);
                         //postsTable.Add(nextPost);
                     }
-                    ElasticsearchHelper.CreateDocument(AppResources.elasticSearchClient, "posts", ElasticsearchHelper.PrepareDataForIndexing()); // создание индекса в эластике
+                    DBase.ReadDBaseHeader(AppResources.dBaseFileName);
+                    ElasticsearchHelper.CreateDocument(AppResources.elasticSearchClient, AppResources.indexName, ElasticsearchHelper.PrepareDataForIndexing()); // создание индекса в эластике
                 }
             }
             catch (SQLiteException ex)
