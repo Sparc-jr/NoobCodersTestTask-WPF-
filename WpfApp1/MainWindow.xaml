@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CSVToDBWithElasticIndexing"
         mc:Ignorable="d"
-        Title="MainWindow" Height="457" Width="800" Background="White">
+        Title="MainWindow" Height="457" Width="800" Background="White" Closed="Window_Closed">
     <Grid x:Name="Canvas" Loaded="Grid_Loaded">
         <Grid.RowDefinitions>
             <RowDefinition Height="73*"/>

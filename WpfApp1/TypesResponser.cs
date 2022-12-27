@@ -20,10 +20,6 @@ namespace CSVToDBWithElasticIndexing
             {
                 return typeof(double);
             }
-            //else if (bool.TryParse(element, out _))
-            //{
-            //    return typeof(bool);
-            //}
             else if (DateTime.TryParse(element, out _))
             {
                 return typeof(DateTime);

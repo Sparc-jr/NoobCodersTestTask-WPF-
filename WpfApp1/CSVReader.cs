@@ -44,6 +44,7 @@ namespace CSVToDBWithElasticIndexing
                     csv.ReadHeader();
                     Post.namesOfFields = csv.HeaderRecord.ToList();
                     Post.FieldsCount = Post.namesOfFields.Count;
+                    //Post.FieldsToIndex = 
                 }
             }
             catch
@@ -80,31 +81,17 @@ namespace CSVToDBWithElasticIndexing
                 using (var reader = new StreamReader(fileCSVPath))
                 using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
                 {
-                    AppResources.dBaseConnection.Open();
-                    bool firstRecord = true;
+                    //AppResources.dBaseConnection.Open();
                     csv.Read();
-                    //var recordTypes = new List<Type>();
-                    var fieldsToIndex = new List<bool>();
-                    //var postsTable = new List<Post>();   // подготовка фиксированной коллекции записей для индексации (по ID и первому столбцу)
                     while (csv.Read())
                     {
                         Post nextPost = new Post();
                         for (int i = 0; i < Post.FieldsCount; i++)
                         {
                             var field = csv.GetField(i);
-                            //if (firstRecord) recordTypes.Add(TypesResponser.GetObjectType(field));   // TO DO: распознавание типов полей таблицы
-                            if (i <= 0) fieldsToIndex.Add(true);
-                            else fieldsToIndex.Add(false);
                             nextPost.Fields.Add(Convert.ChangeType(field, Post.typesOfFields[i]));
                         }
-                        if (firstRecord)
-                        {
-                            //Post.typesOfFields = recordTypes;
-                            Post.FieldsToIndex = fieldsToIndex;
-                        }
-                        firstRecord = false;
                         DBase.AddDataToBase(fileDBasePath, nextPost);
-                        //postsTable.Add(nextPost);
                     }
                     DBase.ReadDBaseHeader(AppResources.dBaseFileName);
                     ElasticsearchHelper.CreateDocument(AppResources.elasticSearchClient, AppResources.indexName, ElasticsearchHelper.PrepareDataForIndexing()); // создание индекса в эластике
@@ -113,11 +100,9 @@ namespace CSVToDBWithElasticIndexing
             catch (SQLiteException ex)
             {
                 MessageBox.Show("Error: " + ex.Message);
-                return false;
-            }
-            finally
-            {
                 AppResources.dBaseConnection.Close();
+                return false;
+
             }
             return true;
         }

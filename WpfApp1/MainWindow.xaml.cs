@@ -14,7 +14,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-//using System.Windows.Shapes;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
@@ -31,7 +30,7 @@ namespace CSVToDBWithElasticIndexing
     /// </summary>
     public partial class MainWindow : Window
     {
-        
+
         List<CheckBox> checkBoxColumnToIndex = new List<CheckBox>();
         public MainWindow()
         {
@@ -50,15 +49,14 @@ namespace CSVToDBWithElasticIndexing
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "CSV files(*.csv)|*.csv";
-            if (openFileDialog.ShowDialog() == false )
+            if (openFileDialog.ShowDialog() == false)
                 return;
             if (CSVReader.OpenFile(openFileDialog.FileName))
             {
                 Label1.Content = "Connected";
                 RefreshDataGridView();
             }
-
-
+            ClearDataGridSearchResult();
         }
         private void Button_OpenDB_Click(object sender, RoutedEventArgs e)
         {
@@ -66,65 +64,22 @@ namespace CSVToDBWithElasticIndexing
             openFileDialog.Filter = "Database files(*.db)|*.db";
             if (openFileDialog.ShowDialog() == false)
                 return;
-
             Label1.Content = DBase.OpenFile(openFileDialog.FileName) ? "Connected" : "Disconnected";
             RefreshDataGridView();
-            
-            
-            MessageBox.Show("Файл открыт");
-
+            ClearDataGridSearchResult();
         }
-
-        /*private List<Post> PrepareDataForIndexing()
+        internal void ClearDataGridSearchResult()
         {
-            var postsTable = new List<Post>();
-            for (int i = 0; i < DataGridSource.Items.Count - 1; i++)
-            {
-                postsTable.Add(new Post());
-                for (int j = 0; j < DataGridSource.    [i].Cells.Count - 1; j++)
-                {
-                    postsTable[i].Fields.Add(DataGridSource.Rows[i].Cells[j].Value);
-                }
-            }
-
-            return postsTable;
-        }*/
-
+                    dataGridSearchResult.ItemsSource = null;
+        }
         internal void RefreshDataGridView()
         {
             SQLiteDataAdapter sQLiteDataAdapter = new SQLiteDataAdapter($"SELECT * FROM {Path.GetFileNameWithoutExtension(AppResources.dBaseFileName)}", AppResources.dBaseConnection);
             DataSet dataSet = new DataSet();
             sQLiteDataAdapter.Fill(dataSet);
             DataGridSource.ItemsSource = dataSet.Tables[0].DefaultView;
-            //DrawCheckBoxesInColumns(); //отрисовка чекбоксов в заголовках колонок
         }
-        private void DrawCheckBoxesInColumns()       // добавляем чекбоксы в заголовки столбцов для выбора что индексировать
-        {                                            // на данный момент индексация осуществляется по умолчанию по первому столбцу           
-            foreach (CheckBox chkBox in checkBoxColumnToIndex)
-            {
-                Canvas.Children.Remove(chkBox);
-            }
-            checkBoxColumnToIndex.Clear();
-            for (int i = 0; i < Post.FieldsCount; i++)
-            {
-                var ckBox = new CheckBox();
-                checkBoxColumnToIndex.Add(ckBox);
-                var cellContent = (FrameworkElement)DataGridSource.Columns[i].GetCellContent(DataGridSource.Items[1]);
-                //DataGridSource.RowHeaderTemplate = 
-
-                //Rectangle rect = this.DataGridSource.   GetCellDisplayRectangle(i + 1, -1, true);
-                //checkBoxColumnToIndex[i].Size = new Size(18, 18);
-                //checkBoxColumnToIndex[i].Top = rect.Top + 1;
-                //checkBoxColumnToIndex[i].Left = rect.Left + rect.Width - checkBoxColumnToIndex[i].Width - 1;
-                /*checkBoxColumnToIndex[i].CheckedChanged += (sender, eventArgs) => {
-                    CheckBox senderCheckbox = (CheckBox)sender;
-                    ckBox_CheckedChanged(i);
-                };*/
-                cellContent = checkBoxColumnToIndex[i];
-            //this.dataGridView1.Controls.Add(checkBoxColumnToIndex[i]);
-            }
-        }
-
+// на данный момент индексация осуществляется по умолчанию по первому столбцу           
         private void searchButton_Click(object sender, RoutedEventArgs e)
         {
             {
@@ -142,15 +97,15 @@ namespace CSVToDBWithElasticIndexing
             var selected = dataGridSearchResult.SelectedItems
                 .OfType<Record>().Select(x => x.Id)
                 .ToArray();
-            /*var idsSelected = new int[selected.Length];
-            for (int i = 0; i< selected.Length;i++)
-            {
-                idsSelected[i] = (int)(selected[i].Id);
-            }*/
-            DBase.DeleteDBaseRow(selected);
             ElasticsearchHelper.DeleteDocument(AppResources.elasticSearchClient, AppResources.indexName, selected);
+            DBase.DeleteDBaseRow(selected);
             RefreshDataGridView();
             searchButton_Click(sender, e);            
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            AppResources.dBaseConnection.Close();
         }
     }
 }

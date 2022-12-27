@@ -1,18 +1,9 @@
-﻿using CSVToDBWithElasticIndexing;
-using Microsoft.SqlServer.Server;
-using System.IO;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
 using System.Data.SQLite;
-using System.Linq;
+using System.IO;
 using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
-using System.Windows;
-using System;
-using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 
 
 namespace CSVToDBWithElasticIndexing
@@ -44,7 +35,6 @@ namespace CSVToDBWithElasticIndexing
                 Post.namesOfFields.Add(dataReader.GetName(i));
                 Post.typesOfFields.Add(TypesResponser.GetDBaseColumnType(dataReader.GetDataTypeName(i)));
             }
-            AppResources.dBaseConnection.Close();
         }
             public static bool CreateDBase(string dBaseName)
         {
@@ -87,15 +77,13 @@ namespace CSVToDBWithElasticIndexing
                 for (int i = 0; i < Post.FieldsCount; i++)
                 {
                     commandLine.Append(Post.namesOfFields[i]);
-                    switch (Post.typesOfFields[i].Name)                                      // TO DO: создание полей в соответствии с опозныннми при парсинге типами
+                    switch (Post.typesOfFields[i].Name)
                     {
                         case "long": commandLine.Append(" INTEGER"); break;
-                        //case "int": commandLine.Append(" INTEGER"); break;
                         case "DateTime": commandLine.Append(" DATETIME"); break;
                         case "double": commandLine.Append(" float"); break;
                         default: commandLine.Append(" TEXT"); break;
                     }
-                    //commandLine.Append(" TEXT");
                     if (i < Post.FieldsCount - 1) commandLine.Append(", ");
                 }
                 commandLine.Append(")");
@@ -112,7 +100,6 @@ namespace CSVToDBWithElasticIndexing
                 commandLine.Append(")");
                 sQLCommand.CommandText = commandLine.ToString();
                 sQLCommand.ExecuteNonQuery();
-                AppResources.dBaseConnection.Close();
                 return true;
             }
             catch (SQLiteException ex)
@@ -171,7 +158,6 @@ namespace CSVToDBWithElasticIndexing
                     SQLiteParameter sqlParameter = new SQLiteParameter();
                     sqlParameter.ParameterName = $"@{Post.namesOfFields[i]}";
                     sqlParameter.Value = record.Fields[i];
-                    //sqlParameter.DbType = DbType.String;    //  TO DO: назначать в зависимости от типа данных поля
                     sQLCommand.Parameters.Add(sqlParameter);
                 }
 
@@ -207,7 +193,7 @@ namespace CSVToDBWithElasticIndexing
         {
             try
             {
-                AppResources.dBaseConnection.Open();
+                //AppResources.dBaseConnection.Open();
                 var sQLCommand = new SQLiteCommand();
                 sQLCommand.Connection = AppResources.dBaseConnection;
                 foreach (long id in idList)
@@ -215,7 +201,6 @@ namespace CSVToDBWithElasticIndexing
                     sQLCommand.CommandText = $"DELETE FROM {Path.GetFileNameWithoutExtension(AppResources.dBaseFileName)} WHERE id like {id}";
                     sQLCommand.ExecuteNonQuery();
                 }
-                AppResources.dBaseConnection.Close();
                 return true;
             }
             catch (SQLiteException ex)

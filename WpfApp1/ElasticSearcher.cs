@@ -35,10 +35,6 @@ namespace CSVToDBWithElasticIndexing
             for (int i = 0; i < mainWindow.DataGridSource.Items.Count - 1; i++)
             {
                 postsTable.Add(new Post());
-                //for (int j = 0; j < mainWindow.DataGridSource.Columns. [i].Cells.Count - 1; j++)
-                //{
-                //    postsTable[i].Fields.Add(mainWindow.DataGridSource.Rows[i].Cells[j].Value);
-                //}
             }
 
             return postsTable;
@@ -46,15 +42,8 @@ namespace CSVToDBWithElasticIndexing
         public static void CreateDocument(ElasticClient elasticClient, string indexName, List<Post> posts)
         {
             elasticClient.DeleteIndex(indexName);
-            /*List<Record> postsToIndex = new List<Record>();
-            //int i = 1;
-            for (int i = 0; i < posts.Count; i++)// each (var post in posts)
-            {
-                postsToIndex.Add(new Record((long)posts[i].Fields[0], posts[i].Fields[1].ToString()));
-            }*/
             var postsToIndex = DBase.PrepareDataForIndexing(Post.namesOfFields.ToArray());
             var response = elasticClient.IndexMany(postsToIndex, AppResources.indexName);
-
             if (response.IsValid) Messages.InfoMessage("Данные успешно импортированы. Индекс создан");
             else Messages.ErrorMessage(response.ToString());
         }
