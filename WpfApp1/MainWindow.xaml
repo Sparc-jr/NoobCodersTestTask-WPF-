@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:CSVToDBWithElasticIndexing"
         xmlns:Data="clr-namespace:System.Data;assembly=System.Data.Common" x:Class="CSVToDBWithElasticIndexing.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="457" Width="800" Background="White" Closed="Window_Closed"
+        Title="Test App" Height="457" Width="800" Background="White" Closed="Window_Closed"
         MinHeight="350" MinWidth="680">
     <Grid x:Name="Canvas" Loaded="Grid_Loaded">
         <Grid.RowDefinitions>
