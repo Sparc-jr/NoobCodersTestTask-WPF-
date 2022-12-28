@@ -86,7 +86,8 @@ namespace CSVToDBWithElasticIndexing
                         DBase.AddDataToBase(fileDBasePath, nextPost);
                     }
                     DBase.ReadDBaseHeader(AppResources.dBaseFileName);
-                    ElasticsearchHelper.CreateDocument(AppResources.elasticSearchClient, AppResources.indexName, ElasticsearchHelper.PrepareDataForIndexing()); // создание индекса в эластике
+                    //ElasticsearchHelper.CreateDocument(AppResources.elasticSearchClient, AppResources.indexName, ElasticsearchHelper.PrepareDataForIndexing()); // создание индекса в эластике
+                    Messages.InfoMessage("Файл открыт. Данные успешно экспортированы в БД");
                 }
             }
             catch (SQLiteException ex)

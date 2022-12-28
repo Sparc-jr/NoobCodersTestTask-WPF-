@@ -17,9 +17,10 @@ namespace CSVToDBWithElasticIndexing
             AppResources.dBaseFileName = fileName;
             ConnectDBase(AppResources.dBaseFileName);
             ReadDBaseHeader(AppResources.dBaseFileName);
-            ElasticsearchHelper.CreateDocument(AppResources.elasticSearchClient, AppResources.indexName, ElasticsearchHelper.PrepareDataForIndexing());
+            //ElasticsearchHelper.CreateDocument(AppResources.elasticSearchClient, AppResources.indexName, ElasticsearchHelper.PrepareDataForIndexing());
             MainWindow mainWindow = new MainWindow();
             mainWindow.RefreshDataGridView();
+            Messages.InfoMessage("Файл открыт");
             return true;
         }
         public static void ReadDBaseHeader(string dBaseName)
@@ -187,7 +188,17 @@ namespace CSVToDBWithElasticIndexing
             var postsTable = new List<Record>();
             foreach (DataRow row in dataTable.Rows)
             {
-                postsTable.Add(new Record((long)row["id"], (new List<object>() { (string)row[fieldsNames[1]] }))); // на данный момент индексация осуществляется по умолчанию по первому столбцу  
+                var items = new List<object>();
+                for (int i=0;i<Post.FieldsCount;i++)
+                {
+                    if (!Post.FieldsToIndex[i].isChecked)
+                    {
+                        continue;
+                    }
+                    items.Add(row[Post.FieldsToIndex[i].name]);
+                }
+                
+                postsTable.Add(new Record((long)row["id"], items)); // на данный момент индексация осуществляется по умолчанию по первому столбцу  
             }
             return postsTable;
         }

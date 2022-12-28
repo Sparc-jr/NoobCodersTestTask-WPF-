@@ -35,7 +35,7 @@ namespace CSVToDBWithElasticIndexing
         public static void CreateDocument(ElasticClient elasticClient, string indexName, List<Post> posts)
         {
             elasticClient.DeleteIndex(indexName);
-            var postsToIndex = DBase.PrepareDataForIndexing(Post.namesOfFields.ToArray());
+            var postsToIndex = DBase.PrepareDataForIndexing(Post.FieldsToIndex.Where(x => x.isChecked).Select(x => x.name).ToArray());
             var response = elasticClient.IndexMany(postsToIndex, AppResources.indexName);
             if (response.IsValid) Messages.InfoMessage("Данные успешно импортированы. Индекс создан");
             else Messages.ErrorMessage(response.ToString());

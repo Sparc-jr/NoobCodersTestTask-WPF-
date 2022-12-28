@@ -63,12 +63,7 @@ namespace CSVToDBWithElasticIndexing
         }
         private void RefreshComboBox()
         {
-            //var checkedColumnsList = new List<CheckedColumn>();
-            //foreach (var field in Post.FieldsToIndex)
-            //checkedColumnsList.Add(new (field.isChecked, field.name));
-            //HeadersComboBox.ItemsSource = checkedColumnsList;
             HeadersComboBox.ItemsSource = Post.FieldsToIndex.Where(x => x.name.ToLower() != "id"); 
-            //was HeadersComboBox.ItemsSource = DataGridSource.Columns.Where(x => x.Header.ToString().ToLower() != "id").Select(x => x.Header);
         }
 
         public class CheckedColumn
@@ -96,7 +91,38 @@ namespace CSVToDBWithElasticIndexing
         {
             {
                 var searchResult = ElasticsearchHelper.SearchDocument(AppResources.elasticSearchClient, AppResources.indexName, textBox1.Text);
-                dataGridSearchResult.ItemsSource = searchResult;
+                DataSet dataSet = new DataSet();
+                dataSet.Tables.Add(new DataTable());
+                dataSet.Tables[0].Columns.Add("id");
+                for (int i = 1; i < Post.FieldsCount; i++)
+                {
+                    if (!Post.FieldsToIndex[i].isChecked)
+                    {
+                        continue;
+                    }
+                    dataSet.Tables[0].Columns.Add(Post.FieldsToIndex[i].name);
+                }
+                var columnsNumber = 0;
+                if (searchResult.Count > 0)
+                {
+                    columnsNumber = searchResult[0].ItemsToIndex.Count;
+                }
+                foreach (var result in searchResult)
+                {
+                    DataRow row = dataSet.Tables[0].NewRow();
+                    row.BeginEdit();
+
+                    row["id"] = result.Id;
+                    for (int i = 0; i < columnsNumber; i++)
+                    {
+                        row[dataSet.Tables[0].Columns[i + 1]] = result.ItemsToIndex[i];
+                    }
+
+                    row.EndEdit();
+                    dataSet.Tables[0].Rows.Add(row);
+                }
+
+                dataGridSearchResult.ItemsSource = dataSet.Tables[0].DefaultView;
             }
         }
         private void textBox1_Loaded(object sender, RoutedEventArgs e)
@@ -106,11 +132,11 @@ namespace CSVToDBWithElasticIndexing
 
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
-            var selected = dataGridSearchResult.SelectedItems
-                .OfType<Record>().Select(x => x.Id)
+            var selectedRecords = dataGridSearchResult.SelectedItems
+                .OfType<DataRowView>().Select(x => Int64.Parse((string)x.Row[0]))
                 .ToArray();
-            ElasticsearchHelper.DeleteDocument(AppResources.elasticSearchClient, AppResources.indexName, selected);
-            DBase.DeleteDBaseRow(selected);
+            ElasticsearchHelper.DeleteDocument(AppResources.elasticSearchClient, AppResources.indexName, selectedRecords);
+            DBase.DeleteDBaseRow(selectedRecords);
             RefreshDataGridView();
             searchButton_Click(sender, e);            
         }
@@ -135,6 +161,11 @@ namespace CSVToDBWithElasticIndexing
         private void Window_Closed(object sender, EventArgs e)
         {
             AppResources.dBaseConnection.Close();
+        }
+
+        private void IndexingButton_Click(object sender, RoutedEventArgs e)
+        {
+            ElasticsearchHelper.CreateDocument(AppResources.elasticSearchClient, AppResources.indexName, ElasticsearchHelper.PrepareDataForIndexing());
         }
     }
 }
