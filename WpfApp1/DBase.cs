@@ -51,7 +51,9 @@ namespace CSVToDBWithElasticIndexing
                 var dialogResult = Messages.overWriteExitedDBase(dBaseName);
                 if (dialogResult == Messages.DialogResult.Yes)
                 {
-                    AppResources.dBaseConnection.Close();
+                    AppResources.dBaseConnection.Dispose();
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
                     File.Delete(dBaseName);
                     SQLiteConnection.CreateFile(dBaseName);
                     return CreateNewDBase(dBaseName);
@@ -122,7 +124,7 @@ namespace CSVToDBWithElasticIndexing
             }
             catch (SQLiteException ex)
             {
-                AppResources.dBaseConnection.Close();
+                AppResources.dBaseConnection.Dispose();
                 Messages.ErrorMessage("Error: " + ex.Message);
                 return false;
             }

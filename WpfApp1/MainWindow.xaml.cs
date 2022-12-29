@@ -155,7 +155,7 @@ namespace CSVToDBWithElasticIndexing
         private void OnComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ComboBox comboBox = (ComboBox)sender;
-            comboBox.SelectedItem = null;
+            comboBox.SelectedItem = "Выберите";
         }
 
 
@@ -169,7 +169,7 @@ namespace CSVToDBWithElasticIndexing
             ElasticsearchHelper.CreateDocument(AppResources.elasticSearchClient, AppResources.indexName, ElasticsearchHelper.PrepareDataForIndexing());
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
             settingsWindow.ShowSettings();
         }

@@ -13,18 +13,19 @@ namespace CSVToDBWithElasticIndexing
     {
         public static bool OpenFile(string fileName)
         {
+            AppResources.dBaseConnection.Dispose();
             AppResources.csvFileName = fileName;
             AppResources.dBaseFileName = $"{Path.GetDirectoryName(fileName)}\\{Path.GetFileNameWithoutExtension(fileName)}.db";
             AppResources.indexName = Path.GetFileNameWithoutExtension(fileName).ToLower();
-            CSVReader.ReadCSVHeader(fileName, AppResources.dBaseFileName);
-            CSVReader.ReadCSVTypes(fileName, AppResources.dBaseFileName);
+            CSVReader.ReadCSVHeader(fileName);
+            CSVReader.ReadCSVTypes(fileName);
             if (DBase.CreateDBase(AppResources.dBaseFileName) == false) return false;
             return CSVReader.ReadCSVandSaveToDataBase(fileName, AppResources.dBaseFileName);
         }
         
         
         
-        public static bool ReadCSVHeader(string fileCSVPath, string fileDBasePath)
+        public static bool ReadCSVHeader(string fileCSVPath)
         {
             string[] fields = null;
             try
@@ -47,7 +48,7 @@ namespace CSVToDBWithElasticIndexing
         }
 
 
-        public static void ReadCSVTypes(string fileCSVPath, string fileDBasePath)
+        public static void ReadCSVTypes(string fileCSVPath)
         {
             using (var reader = new StreamReader(fileCSVPath))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
