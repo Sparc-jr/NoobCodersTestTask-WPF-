@@ -13,7 +13,7 @@ namespace CSVToDBWithElasticIndexing
     {
         public static bool OpenFile(string fileName)
         {
-            AppResources.CSVFileName = fileName;
+            AppResources.csvFileName = fileName;
             AppResources.dBaseFileName = $"{Path.GetDirectoryName(fileName)}\\{Path.GetFileNameWithoutExtension(fileName)}.db";
             AppResources.indexName = Path.GetFileNameWithoutExtension(fileName).ToLower();
             CSVReader.ReadCSVHeader(fileName, AppResources.dBaseFileName);

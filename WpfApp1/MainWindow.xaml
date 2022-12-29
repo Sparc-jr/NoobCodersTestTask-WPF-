@@ -6,8 +6,8 @@
         xmlns:local="clr-namespace:CSVToDBWithElasticIndexing"
         xmlns:Data="clr-namespace:System.Data;assembly=System.Data.Common" x:Class="CSVToDBWithElasticIndexing.MainWindow"
         mc:Ignorable="d"
-        Title="Test App" Height="457" Width="800" Background="White" Closed="Window_Closed"
-        MinHeight="350" MinWidth="680">
+        Title="Test App" Height="457" Width="634" Background="White" Closed="Window_Closed"
+        MinHeight="350" MinWidth="700">
     <Grid x:Name="Canvas" Loaded="Grid_Loaded">
         <Grid.RowDefinitions>
             <RowDefinition Height="73*"/>
@@ -16,23 +16,27 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="643*"/>
-            <ColumnDefinition Width="147*"/>
-            <ColumnDefinition Width="10*"/>
+            <ColumnDefinition Width="157*"/>
         </Grid.ColumnDefinitions>
+        <Button Height="20" Margin="0,10,10,0" Padding="1,1,6,1" Grid.Column="1" HorizontalAlignment="Right" Width="20" VerticalAlignment="Top" Click="Button_Click">
+            <Button.Background>
+                <ImageBrush ImageSource="/settings.png" TileMode="None"/>
+            </Button.Background>
+        </Button>
         <Button Content="Открыть *.CSV" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.522,0.557" Width="92" Height="20" Click="Button_OpenCSV_Click"/>
         <Button Content="Open *.DB" Margin="108,10,0,0" VerticalAlignment="Top" Height="20" HorizontalAlignment="Left" Width="80" Click="Button_OpenDB_Click"/>
 
-        <DataGrid x:Name="DataGridSource" x:FieldModifier="public" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,35,0,2" Grid.ColumnSpan="2" Background="White"/>
+        <DataGrid x:Name="DataGridSource" x:FieldModifier="public" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,35,10,2" Grid.ColumnSpan="2" Background="White"/>
 
 
-        <Button x:Name="searchButton" Content="Искать" Margin="10,0,0,0" VerticalAlignment="Center" RenderTransformOrigin="0.523,0.463" Height="20" HorizontalAlignment="Left" Width="90" Grid.Column="1" Grid.Row="1" Click="searchButton_Click"/>
+        <Button x:Name="searchButton" Content="Искать" Margin="10,0,0,0" VerticalAlignment="Center" RenderTransformOrigin="0.523,0.463" Height="20" HorizontalAlignment="Left" Width="61" Grid.Column="1" Grid.Row="1" Click="searchButton_Click"/>
         <TextBox x:Name="textBox1" Margin="10,0,10,0" TextWrapping="Wrap" Text="Введите текст для поиска" Height="18" VerticalAlignment="Center" Grid.Row="1" Loaded="textBox1_Loaded"/>
-        <DataGrid x:Name="dataGridSearchResult" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,3,0,63" Grid.ColumnSpan="2" Background="White" Grid.Row="2"/>
-        <StatusBar x:Name="StatusBar1" Height="24" VerticalAlignment="Bottom" Grid.ColumnSpan="3" Grid.Row="2">
+        <DataGrid x:Name="dataGridSearchResult" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,3,10,63" Grid.ColumnSpan="2" Background="White" Grid.Row="2"/>
+        <StatusBar x:Name="StatusBar1" Height="24" VerticalAlignment="Bottom" Grid.ColumnSpan="2" Grid.Row="2">
             <Label x:Name="Label1" Content="Status" Height="23"/>
         </StatusBar>
         <Button Content="Удалить выбранные записи" HorizontalAlignment="Left" Margin="10,0,0,38" Width="185" Height="20" VerticalAlignment="Bottom" Grid.Row="2" Click="Delete_Click"/>
-        <ComboBox x:Name="HeadersComboBox" Margin="439,10,0,0" VerticalAlignment="Top" AutomationProperties.IsColumnHeader="True" SelectionChanged="OnComboBoxSelectionChanged" Height="20" HorizontalAlignment="Left" Width="120" Grid.ColumnSpan="2">
+        <ComboBox x:Name="HeadersComboBox" Margin="434,10,0,0" VerticalAlignment="Top" AutomationProperties.IsColumnHeader="True" SelectionChanged="OnComboBoxSelectionChanged" Height="20" HorizontalAlignment="Left" Width="120">
             <ComboBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
@@ -43,7 +47,9 @@
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>
-        <Button Content="Индексировать" HorizontalAlignment="Left" Margin="564,10,0,0" VerticalAlignment="Top" Width="90" Grid.ColumnSpan="2" Click="IndexingButton_Click"/>
-        <Label Content="Выберите столбцы для индексирования" HorizontalAlignment="Left" Margin="205,7,0,0" VerticalAlignment="Top" Width="230"/>
+        <Button Content="Индексировать" HorizontalAlignment="Left" Margin="559,10,0,0" VerticalAlignment="Top" Width="90" Grid.ColumnSpan="2" Click="IndexingButton_Click"/>
+        <Label Content="Выберите столбцы для индексирования" HorizontalAlignment="Left" Margin="200,7,0,0" VerticalAlignment="Top" Width="230"/>
+        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="192,140,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top"/>
     </Grid>
 </Window>
+

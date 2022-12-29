@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace CSVToDBWithElasticIndexing
 {
@@ -166,6 +167,11 @@ namespace CSVToDBWithElasticIndexing
         private void IndexingButton_Click(object sender, RoutedEventArgs e)
         {
             ElasticsearchHelper.CreateDocument(AppResources.elasticSearchClient, AppResources.indexName, ElasticsearchHelper.PrepareDataForIndexing());
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            settingsWindow.ShowSettings();
         }
     }
 }
