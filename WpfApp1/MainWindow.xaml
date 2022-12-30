@@ -32,7 +32,7 @@
 
 
         <Button x:Name="searchButton" Content="Искать" Margin="10,0,0,0" VerticalAlignment="Center" RenderTransformOrigin="0.523,0.463" Height="20" HorizontalAlignment="Left" Width="61" Grid.Column="1" Grid.Row="1" Click="searchButton_Click" />
-        <TextBox x:Name="textBox1" Margin="10,0,10,0" TextWrapping="Wrap" Text="Введите текст для поиска" Height="18" VerticalAlignment="Center" Grid.Row="1" Loaded="textBox1_Loaded"/>
+        <TextBox x:Name="textBox1" Margin="10,0,110,0" TextWrapping="Wrap" Text="Введите текст для поиска" Height="18" VerticalAlignment="Center" Grid.Row="1" Loaded="textBox1_Loaded"/>
         <DataGrid x:Name="dataGridSearchResult" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,3,10,63" Grid.ColumnSpan="2" Background="White" Grid.Row="2"/>
         <StatusBar x:Name="StatusBar1" Height="24" VerticalAlignment="Bottom" Grid.ColumnSpan="2" Grid.Row="2">
             <Label x:Name="DBStatusLabel" Content="DB Status" Height="23"/>
@@ -52,6 +52,8 @@
         <Button Content="Индексировать" HorizontalAlignment="Left" Margin="559,10,0,0" VerticalAlignment="Top" Width="90" Grid.ColumnSpan="2" Click="IndexingButton_Click"/>
         <Label Content="Выберите столбцы для индексирования" HorizontalAlignment="Left" Margin="200,7,0,0" VerticalAlignment="Top" Width="230"/>
         <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="192,140,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top"/>
+        <CheckBox x:Name="StrongSearchCheckBox" Content="Точный поиск" Margin="0,4,7,0" Grid.Row="1" VerticalAlignment="Top" Height="18" HorizontalAlignment="Right" Width="98" 
+                  Grid.RowSpan="2" Checked="StrongSearchCheckBox_Checked" Unchecked="StrongSearchCheckBox_Unchecked" x:FieldModifier="public"/>
     </Grid>
 </Window>
 

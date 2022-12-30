@@ -35,7 +35,7 @@ namespace CSVToDBWithElasticIndexing
             {
                 Post.namesOfFields.Add(dataReader.GetName(i));
                 Post.typesOfFields.Add(TypesResponser.GetDBaseColumnType(dataReader.GetDataTypeName(i)));
-                Post.FieldsToIndex.Add(new (false, Post.namesOfFields[i]));
+                Post.FieldsToIndex.Add(new(false, Post.namesOfFields[i]));
             }
             Post.FieldsToIndex[1].isChecked = true;
         }
@@ -180,7 +180,7 @@ namespace CSVToDBWithElasticIndexing
         {
             var fields = new StringBuilder();
             fields.AppendJoin(", ", fieldsNames);
-            SQLiteDataAdapter sQLiteDataAdapter = new SQLiteDataAdapter($"SELECT id, {fields} FROM {Path.GetFileNameWithoutExtension(AppResources.dBaseFileName)}", 
+            SQLiteDataAdapter sQLiteDataAdapter = new SQLiteDataAdapter($"SELECT id, {fields} FROM {Path.GetFileNameWithoutExtension(AppResources.dBaseFileName)}",
                                                                         AppResources.dBaseConnection);
             DataSet dataSet = new DataSet();
             sQLiteDataAdapter.Fill(dataSet);
@@ -190,20 +190,20 @@ namespace CSVToDBWithElasticIndexing
             foreach (DataRow row in dataTable.Rows)
             {
                 var items = new List<object>();
-                for (int i=0;i<Post.FieldsCount;i++)
+                for (int i = 0; i < Post.FieldsCount; i++)
                 {
                     if (!Post.FieldsToIndex[i].isChecked)
                     {
                         continue;
                     }
                     items.Add(row[Post.FieldsToIndex[i].name]);
-                }                
-                postsTable.Add(new Record((long)row["id"], items));  
+                }
+                postsTable.Add(new Record((long)row["id"], items));
             }
             return postsTable;
         }
 
-        public static bool DeleteDBaseRow (params long[] idList)
+        public static bool DeleteDBaseRow(params long[] idList)
         {
             try
             {

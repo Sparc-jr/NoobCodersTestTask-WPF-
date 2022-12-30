@@ -8,11 +8,8 @@ using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
-using System.Resources;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 
 namespace CSVToDBWithElasticIndexing
 {
@@ -67,11 +64,11 @@ namespace CSVToDBWithElasticIndexing
         }
         internal void ClearDataGridSearchResult()
         {
-                    dataGridSearchResult.ItemsSource = null;
+            dataGridSearchResult.ItemsSource = null;
         }
         private void RefreshComboBox()
         {
-            HeadersComboBox.ItemsSource = Post.FieldsToIndex.Where(x => x.name.ToLower() != "id"); 
+            HeadersComboBox.ItemsSource = Post.FieldsToIndex.Where(x => x.name.ToLower() != "id");
         }
 
         public class CheckedColumn
@@ -101,9 +98,9 @@ namespace CSVToDBWithElasticIndexing
             {
                 Messages.InfoMessage("Сначала проиндексируйте таблицу");
             }
-            else                     
+            else
             {
-                var searchResult = ElasticsearchHelper.SearchDocument(AppResources.elasticSearchClient, AppResources.indexName, textBox1.Text);
+                var searchResult = ElasticsearchHelper.SearchDocument(AppResources.elasticSearchClient, AppResources.indexName, textBox1.Text.ToLower());
                 DataSet dataSet = new DataSet();
                 dataSet.Tables.Add(new DataTable());
                 dataSet.Tables[0].Columns.Add("id");
@@ -149,7 +146,7 @@ namespace CSVToDBWithElasticIndexing
             ElasticsearchHelper.DeleteDocument(AppResources.elasticSearchClient, AppResources.indexName, selectedRecords);
             DBase.DeleteDBaseRow(selectedRecords);
             RefreshDataGridView();
-            searchButton_Click(sender, e);            
+            searchButton_Click(sender, e);
         }
 
         private void OnComboBoxCheckBoxChecked(object sender, RoutedEventArgs e)
@@ -158,7 +155,7 @@ namespace CSVToDBWithElasticIndexing
             foreach (var item in HeadersComboBox.Items)
             {
                 if (HeadersComboBox.SelectedItem == item) selectedFields.Add(item as string);
-            }           
+            }
         }
 
         private void OnComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -192,6 +189,16 @@ namespace CSVToDBWithElasticIndexing
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
             settingsWindow.ShowSettings();
+        }
+
+        private void StrongSearchCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            ElasticsearchHelper.textQueryType = TextQueryType.Phrase;
+        }
+
+        private void StrongSearchCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ElasticsearchHelper.textQueryType = TextQueryType.PhrasePrefix;
         }
     }
 }

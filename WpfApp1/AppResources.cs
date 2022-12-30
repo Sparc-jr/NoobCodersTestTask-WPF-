@@ -1,8 +1,5 @@
 ﻿using Nest;
-using System;
 using System.Data.SQLite;
-using System.Windows;
-using System.Windows.Controls;
 
 namespace CSVToDBWithElasticIndexing
 {
@@ -17,12 +14,12 @@ namespace CSVToDBWithElasticIndexing
         private static string elasticUserName;
         private static string elasticPassword;
         private static int searchResultsCount;
-        public static string ElasticCloudID 
-        { 
+        public static string ElasticCloudID
+        {
             get
             {
                 return elasticCloudID;
-            } 
+            }
             set
             {
                 elasticCloudID = value != string.Empty ? value : "none:NoneCloudIDNoneCloudID=="; //hcnkgYmxvYg
@@ -51,8 +48,8 @@ namespace CSVToDBWithElasticIndexing
                 elasticPassword = value != string.Empty ? value : "pass";
             }
         }
-        public static int SearchResultsCount 
-        { 
+        public static int SearchResultsCount
+        {
             get
             {
                 return searchResultsCount;
@@ -80,7 +77,7 @@ namespace CSVToDBWithElasticIndexing
             if (iniFile.KeyExists("results", "AppSettings"))
                 AppResources.SearchResultsCount = int.Parse(iniFile.Read("AppSettings", "results"));
             else AppResources.SearchResultsCount = 20;
-            
+
             if (iniFile.KeyExists("CloudID", "ElasticAuth") && iniFile.KeyExists("username", "ElasticAuth")
                 && iniFile.KeyExists("password", "ElasticAuth"))
             {

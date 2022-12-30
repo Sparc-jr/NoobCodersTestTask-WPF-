@@ -22,9 +22,9 @@ namespace CSVToDBWithElasticIndexing
             if (DBase.CreateDBase(AppResources.dBaseFileName) == false) return false;
             return CSVReader.ReadCSVandSaveToDataBase(fileName, AppResources.dBaseFileName);
         }
-        
-        
-        
+
+
+
         public static bool ReadCSVHeader(string fileCSVPath)
         {
             string[] fields = null;

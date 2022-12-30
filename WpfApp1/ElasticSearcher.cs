@@ -2,18 +2,17 @@
 using Nest;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Windows;
-using System.Windows.Threading;
-using System.Diagnostics;
-using System.IO;
 
 namespace CSVToDBWithElasticIndexing
 {
     public class ElasticsearchHelper
     {
+        public static TextQueryType textQueryType = TextQueryType.PhrasePrefix;
+
         public static ElasticClient GetESClient()
         {
             try
@@ -33,8 +32,7 @@ namespace CSVToDBWithElasticIndexing
                     .EnableApiVersioningHeader()
                     .DefaultIndex(AppResources.indexName)
                     .ThrowExceptions()
-                    .EnableDebugMode()
-                    ;
+                    .EnableDebugMode();
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                 var elasticClient = new ElasticClient(connectionSettings);
                 return elasticClient;
@@ -60,28 +58,33 @@ namespace CSVToDBWithElasticIndexing
         {
             try
             {
-            MainWindow mainWindow = new MainWindow();
-            elasticClient.DeleteIndex(indexName);
-            var postsToIndex = DBase.PrepareDataForIndexing(Post.FieldsToIndex.Where(x => x.isChecked).Select(x => x.name).ToArray());
-            var response = elasticClient.IndexMany(postsToIndex, AppResources.indexName);
-            if (response.IsValid) Messages.InfoMessage("Данные успешно импортированы. Индекс создан");
-            else Messages.ErrorMessage(response.ToString());
-            AppResources.tableIsIndexed = true;
+                MainWindow mainWindow = new MainWindow();
+                elasticClient.DeleteIndex(indexName);
+                var postsToIndex = DBase.PrepareDataForIndexing(Post.FieldsToIndex.Where(x => x.isChecked).Select(x => x.name).ToArray());
+                var response = elasticClient.IndexMany(postsToIndex, AppResources.indexName);
+                if (response.IsValid) Messages.InfoMessage("Данные успешно импортированы. Индекс создан");
+                else Messages.ErrorMessage(response.ToString());
+                AppResources.tableIsIndexed = true;
             }
             catch (SystemException ex)
             {
-                MessageBox.Show("Error!!!!!!: " + ex.Message);
+                Messages.ErrorMessage($"Не удалось создать индекс. \n{ex.Source.ToString()}\n{ex.Message}\n");
             }
         }
 
         public static List<Record> SearchDocument(ElasticClient elasticClient, string indexName, string stringToSearch)
         {
-            var searchResponse = elasticClient.Search<Record>(s => s
+
+            var searchResponse = elasticClient.Search<Record>(sd => sd
                 .Size(AppResources.SearchResultsCount)
                 .Index(indexName)
                 .Query(q => q
-                    .Term(t => t.ItemsToIndex, stringToSearch)
-                      )
+                    .MultiMatch(query => query
+                        .Type(textQueryType)
+                        .Fields("*")
+                        .Query(stringToSearch)
+                        )
+                    )
                 );
             return searchResponse.Documents.ToList();
         }

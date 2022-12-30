@@ -8,7 +8,7 @@ namespace CSVToDBWithElasticIndexing
         private static int fieldsCount;
         private static List<FieldsToIndexSelection> fieldsToIndex;
         private List<object> fields;
-        
+
         public static int FieldsCount;
         public static List<FieldsToIndexSelection> FieldsToIndex;
         public static List<string> namesOfFields;
