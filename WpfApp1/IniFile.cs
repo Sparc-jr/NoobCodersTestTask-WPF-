@@ -22,7 +22,7 @@ namespace CSVToDBWithElasticIndexing
         }
 
         //Читаем ini-файл и возвращаем значение указного ключа из заданной секции.
-        public string ReadINI(string Section, string Key)
+        public string Read(string Section, string Key)
         {
             var RetVal = new StringBuilder(255);
             GetPrivateProfileString(Section, Key, "", RetVal, 255, Path);
@@ -47,7 +47,7 @@ namespace CSVToDBWithElasticIndexing
         //Проверяем, есть ли такой ключ, в этой секции
         public bool KeyExists(string Key, string Section = null)
         {
-            return ReadINI(Section, Key).Length > 0;
+            return Read(Section, Key).Length > 0;
         }
     }
 }

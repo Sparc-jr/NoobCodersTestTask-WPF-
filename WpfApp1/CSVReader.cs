@@ -13,12 +13,12 @@ namespace CSVToDBWithElasticIndexing
     {
         public static bool OpenFile(string fileName)
         {
-            AppResources.dBaseConnection.Dispose();
             AppResources.csvFileName = fileName;
             AppResources.dBaseFileName = $"{Path.GetDirectoryName(fileName)}\\{Path.GetFileNameWithoutExtension(fileName)}.db";
             AppResources.indexName = Path.GetFileNameWithoutExtension(fileName).ToLower();
             CSVReader.ReadCSVHeader(fileName);
             CSVReader.ReadCSVTypes(fileName);
+            AppResources.dBaseConnection.Dispose();
             if (DBase.CreateDBase(AppResources.dBaseFileName) == false) return false;
             return CSVReader.ReadCSVandSaveToDataBase(fileName, AppResources.dBaseFileName);
         }
@@ -86,6 +86,7 @@ namespace CSVToDBWithElasticIndexing
                         DBase.AddDataToBase(fileDBasePath, nextPost);
                     }
                     DBase.ReadDBaseHeader(AppResources.dBaseFileName);
+                    AppResources.tableIsIndexed = false;
                     Messages.InfoMessage("Файл открыт. Данные успешно экспортированы в БД");
                 }
             }

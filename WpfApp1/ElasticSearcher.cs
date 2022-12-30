@@ -7,11 +7,11 @@ namespace CSVToDBWithElasticIndexing
 {
     public class ElasticsearchHelper
     {
-        static string cloudID = "NoobCodersTask:dXMtY2VudHJhbDEuZ2NwLmNsb3VkLmVzLmlvOjQ0MyQ4NjQyZWI4MDg4YTg0ZDUxYjhiMDdiMGE4NDFkMTdiYyRjY2I1NTFlZDY3MWI0MTRhYTc4ZDUyZjIxYThlMGI5Nw==";
+        static string cloudID = AppResources.elasticCloudID;
         public static ElasticClient GetESClient()
         {
 
-            var credentials = new BasicAuthenticationCredentials("elastic", "ZZwhmkol45v3JtMEZusfiLpe");
+            var credentials = new BasicAuthenticationCredentials(AppResources.elasticUserName, AppResources.elasticPassword);
             var connectionPool = new CloudConnectionPool(cloudID, credentials);
             var connectionSettings = new ConnectionSettings(connectionPool)
                 .EnableApiVersioningHeader()
@@ -34,17 +34,19 @@ namespace CSVToDBWithElasticIndexing
         }
         public static void CreateDocument(ElasticClient elasticClient, string indexName, List<Post> posts)
         {
+            MainWindow mainWindow = new MainWindow();
             elasticClient.DeleteIndex(indexName);
             var postsToIndex = DBase.PrepareDataForIndexing(Post.FieldsToIndex.Where(x => x.isChecked).Select(x => x.name).ToArray());
             var response = elasticClient.IndexMany(postsToIndex, AppResources.indexName);
             if (response.IsValid) Messages.InfoMessage("Данные успешно импортированы. Индекс создан");
             else Messages.ErrorMessage(response.ToString());
+            AppResources.tableIsIndexed = true;
         }
 
         public static List<Record> SearchDocument(ElasticClient elasticClient, string indexName, string stringToSearch)
         {
             var searchResponse = elasticClient.Search<Record>(s => s
-                .Size(20)
+                .Size(AppResources.searchResultsCount)
                 .Index(indexName)
                 .Query(q => q
                     .Term(t => t.ItemsToIndex, stringToSearch)

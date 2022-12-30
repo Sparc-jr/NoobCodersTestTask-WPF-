@@ -6,6 +6,7 @@ using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
+using System.Resources;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,15 +22,20 @@ namespace CSVToDBWithElasticIndexing
 
         public MainWindow()
         {
+            var resources = new AppResources();
+            var buttonEnabledBinding = new Binding();
+
             InitializeComponent();
         }
 
         private void Grid_Loaded(object sender, RoutedEventArgs e)
         {
+            Settings.auto_read();
+            AppResources.tableIsIndexed = false;
             AppResources.dBaseConnection = new SQLiteConnection();
-            AppResources.dBaseFileName = "sampleDB.db";
+            AppResources.dBaseFileName = "sampleDB.db";            
             Label1.Content = "Disconnected";
-            ElasticsearchHelper.GetESClient();
+            AppResources.elasticSearchClient = ElasticsearchHelper.GetESClient();
         }
 
         private void Button_OpenCSV_Click(object sender, RoutedEventArgs e)
@@ -90,6 +96,11 @@ namespace CSVToDBWithElasticIndexing
         }
         private void searchButton_Click(object sender, RoutedEventArgs e)
         {
+            if (AppResources.tableIsIndexed == false)
+            {
+                Messages.InfoMessage("Сначала проиндексируйте таблицу");
+            }
+            else                    
             {
                 var searchResult = ElasticsearchHelper.SearchDocument(AppResources.elasticSearchClient, AppResources.indexName, textBox1.Text);
                 DataSet dataSet = new DataSet();
@@ -122,7 +133,6 @@ namespace CSVToDBWithElasticIndexing
                     row.EndEdit();
                     dataSet.Tables[0].Rows.Add(row);
                 }
-
                 dataGridSearchResult.ItemsSource = dataSet.Tables[0].DefaultView;
             }
         }
@@ -161,7 +171,9 @@ namespace CSVToDBWithElasticIndexing
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            AppResources.dBaseConnection.Close();
+            AppResources.dBaseConnection.Dispose();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         private void IndexingButton_Click(object sender, RoutedEventArgs e)
@@ -172,6 +184,11 @@ namespace CSVToDBWithElasticIndexing
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
             settingsWindow.ShowSettings();
+        }
+
+        internal void SearchButton_SwitchEnabledProperty()
+        {
+            searchButton.IsEnabled = !searchButton.IsEnabled;
         }
     }
 }

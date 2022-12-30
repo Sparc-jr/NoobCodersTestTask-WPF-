@@ -13,12 +13,12 @@ namespace CSVToDBWithElasticIndexing
 
         public static bool OpenFile(string fileName)
         {
-            AppResources.dBaseConnection.Close();
             AppResources.dBaseFileName = fileName;
             ConnectDBase(AppResources.dBaseFileName);
             ReadDBaseHeader(AppResources.dBaseFileName);
             MainWindow mainWindow = new MainWindow();
             mainWindow.RefreshDataGridView();
+            AppResources.tableIsIndexed = false;
             Messages.InfoMessage("Файл открыт");
             return true;
         }
@@ -60,7 +60,6 @@ namespace CSVToDBWithElasticIndexing
                 }
                 else if (dialogResult == Messages.DialogResult.No)
                 {
-                    AppResources.dBaseConnection.Close();
                     return ConnectDBase(dBaseName);
                 }
             }
@@ -119,6 +118,7 @@ namespace CSVToDBWithElasticIndexing
             try
             {
                 var sQLCommand = new SQLiteCommand();
+                AppResources.dBaseConnection.Dispose();
                 AppResources.dBaseConnection = new SQLiteConnection("Data Source=" + dBaseName + ";Version=3;New=False;Compress=True;");
                 AppResources.dBaseConnection.Open();
             }
