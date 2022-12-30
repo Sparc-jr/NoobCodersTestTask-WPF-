@@ -1,4 +1,6 @@
-﻿using Microsoft.Win32;
+﻿using Elasticsearch.Net;
+using Microsoft.Win32;
+using Nest;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -30,9 +32,11 @@ namespace CSVToDBWithElasticIndexing
             Settings.ReadConfigIni();
             AppResources.tableIsIndexed = false;
             AppResources.dBaseConnection = new SQLiteConnection();
-            AppResources.dBaseFileName = "sampleDB.db";            
-            Label1.Content = "Disconnected";
+            AppResources.dBaseFileName = "sampleDB.db";
+            DBStatusLabel.Content = "DB Disconnected";
             AppResources.elasticSearchClient = ElasticsearchHelper.GetESClient();
+            var response = AppResources.elasticSearchClient.ClusterHealth(new ClusterHealthRequest() { WaitForStatus = WaitForStatus.Red });
+            ElasticStatusLabel.Content = $"Elastic status {response.Status.ToString()}";
         }
 
         private void Button_OpenCSV_Click(object sender, RoutedEventArgs e)
@@ -43,7 +47,7 @@ namespace CSVToDBWithElasticIndexing
                 return;
             if (CSVReader.OpenFile(openFileDialog.FileName))
             {
-                Label1.Content = "Connected";
+                DBStatusLabel.Content = "DB Connected";
                 RefreshDataGridView();
             }
             ClearDataGridSearchResult();
@@ -56,7 +60,7 @@ namespace CSVToDBWithElasticIndexing
             openFileDialog.Filter = "Database files(*.db)|*.db";
             if (openFileDialog.ShowDialog() == false)
                 return;
-            Label1.Content = DBase.OpenFile(openFileDialog.FileName) ? "Connected" : "Disconnected";
+            DBStatusLabel.Content = DBase.OpenFile(openFileDialog.FileName) ? "DB Connected" : "DB Disconnected";
             RefreshDataGridView();
             ClearDataGridSearchResult();
             RefreshComboBox();
@@ -169,6 +173,7 @@ namespace CSVToDBWithElasticIndexing
             AppResources.dBaseConnection.Dispose();
             GC.Collect();
             GC.WaitForPendingFinalizers();
+            Application.Current.Shutdown();
         }
 
         private void IndexingButton_Click(object sender, RoutedEventArgs e)

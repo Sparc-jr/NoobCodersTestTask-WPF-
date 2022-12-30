@@ -1,6 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+	  <PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
+	<SelfContained>true</SelfContained>
+	<PublishReadyToRun>true</PublishReadyToRun>
+	  <RuntimeIdentifier>win-x86</RuntimeIdentifier>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
@@ -16,7 +20,7 @@
     <PackageReference Include="Elastic.Apm.AspNetCore" Version="1.19.0" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.0" />
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="7.0.0" />
-    <PackageReference Include="NEST" Version="7.17.5" />
+    <PackageReference Include="NEST" Version="7.17.0" />
     <PackageReference Include="NEST.7xUpgradeAssistant" Version="7.1.0" />
     <PackageReference Include="SQLite" Version="3.13.0" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.117" />

@@ -4,11 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CSVToDBWithElasticIndexing"
-        xmlns:Data="clr-namespace:System.Data;assembly=System.Data.Common" x:Class="CSVToDBWithElasticIndexing.MainWindow"
+        xmlns:Data="clr-namespace:System.Data;assembly=System.Data.Common" x:Name="mainWindow" x:Class="CSVToDBWithElasticIndexing.MainWindow"
         mc:Ignorable="d"
         Title="Test App" Height="457" Width="634" Background="White" Closed="Window_Closed"
-        MinHeight="350" MinWidth="700">
-    <Grid x:Name="Canvas" Loaded="Grid_Loaded">
+        MinHeight="350" MinWidth="700"
+        x:FieldModifier="public"
+        >
+    <Grid x:Name="canvas" Loaded="Grid_Loaded">
         <Grid.RowDefinitions>
             <RowDefinition Height="73*"/>
             <RowDefinition Height="21"/>
@@ -33,7 +35,8 @@
         <TextBox x:Name="textBox1" Margin="10,0,10,0" TextWrapping="Wrap" Text="Введите текст для поиска" Height="18" VerticalAlignment="Center" Grid.Row="1" Loaded="textBox1_Loaded"/>
         <DataGrid x:Name="dataGridSearchResult" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,3,10,63" Grid.ColumnSpan="2" Background="White" Grid.Row="2"/>
         <StatusBar x:Name="StatusBar1" Height="24" VerticalAlignment="Bottom" Grid.ColumnSpan="2" Grid.Row="2">
-            <Label x:Name="Label1" Content="Status" Height="23"/>
+            <Label x:Name="DBStatusLabel" Content="DB Status" Height="23"/>
+            <Label x:Name="ElasticStatusLabel" Content="Elastic Status" Height="23"/>
         </StatusBar>
         <Button Content="Удалить выбранные записи" HorizontalAlignment="Left" Margin="10,0,0,38" Width="185" Height="20" VerticalAlignment="Bottom" Grid.Row="2" Click="Delete_Click"/>
         <ComboBox x:Name="HeadersComboBox" Margin="434,10,0,0" VerticalAlignment="Top" AutomationProperties.IsColumnHeader="True" SelectionChanged="OnComboBoxSelectionChanged" Height="20" HorizontalAlignment="Left" Width="120">
