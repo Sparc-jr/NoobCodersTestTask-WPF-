@@ -18,7 +18,7 @@ namespace CSVToDBWithElasticIndexing
         public static string elasticUserName { get; set; }
         public static string elasticPassword { get; set; }
         public static int searchResultsCount { get; set; }
-        public static ElasticClient elasticSearchClient { get; set; } //= ElasticsearchHelper.GetESClient();
+        public static ElasticClient elasticSearchClient { get; set; }
 
     }
 

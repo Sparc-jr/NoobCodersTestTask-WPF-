@@ -129,7 +129,6 @@ namespace CSVToDBWithElasticIndexing
                     {
                         row[dataSet.Tables[0].Columns[i + 1]] = result.ItemsToIndex[i];
                     }
-
                     row.EndEdit();
                     dataSet.Tables[0].Rows.Add(row);
                 }
@@ -158,8 +157,7 @@ namespace CSVToDBWithElasticIndexing
             foreach (var item in HeadersComboBox.Items)
             {
                 if (HeadersComboBox.SelectedItem == item) selectedFields.Add(item as string);
-            }
-           
+            }           
         }
 
         private void OnComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -184,11 +182,6 @@ namespace CSVToDBWithElasticIndexing
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
             settingsWindow.ShowSettings();
-        }
-
-        internal void SearchButton_SwitchEnabledProperty()
-        {
-            searchButton.IsEnabled = !searchButton.IsEnabled;
         }
     }
 }

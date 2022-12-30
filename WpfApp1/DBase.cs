@@ -39,7 +39,7 @@ namespace CSVToDBWithElasticIndexing
             }
             Post.FieldsToIndex[1].isChecked = true;
         }
-            public static bool CreateDBase(string dBaseName)
+        public static bool CreateDBase(string dBaseName)
         {
             if (!File.Exists(dBaseName))
             {
