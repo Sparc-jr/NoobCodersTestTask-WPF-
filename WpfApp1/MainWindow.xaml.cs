@@ -22,15 +22,12 @@ namespace CSVToDBWithElasticIndexing
 
         public MainWindow()
         {
-            var resources = new AppResources();
-            var buttonEnabledBinding = new Binding();
-
             InitializeComponent();
         }
 
         private void Grid_Loaded(object sender, RoutedEventArgs e)
         {
-            Settings.auto_read();
+            Settings.ReadConfigIni();
             AppResources.tableIsIndexed = false;
             AppResources.dBaseConnection = new SQLiteConnection();
             AppResources.dBaseFileName = "sampleDB.db";            
@@ -100,7 +97,7 @@ namespace CSVToDBWithElasticIndexing
             {
                 Messages.InfoMessage("Сначала проиндексируйте таблицу");
             }
-            else                    
+            else                     
             {
                 var searchResult = ElasticsearchHelper.SearchDocument(AppResources.elasticSearchClient, AppResources.indexName, textBox1.Text);
                 DataSet dataSet = new DataSet();
@@ -163,7 +160,7 @@ namespace CSVToDBWithElasticIndexing
         private void OnComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ComboBox comboBox = (ComboBox)sender;
-            comboBox.SelectedItem = "Выберите";
+            comboBox.SelectedItem = null;
         }
 
 
@@ -176,7 +173,15 @@ namespace CSVToDBWithElasticIndexing
 
         private void IndexingButton_Click(object sender, RoutedEventArgs e)
         {
-            ElasticsearchHelper.CreateDocument(AppResources.elasticSearchClient, AppResources.indexName, ElasticsearchHelper.PrepareDataForIndexing());
+            if (AppResources.elasticSearchClient == null)
+            {
+                Messages.ErrorMessage("Нет подключения к Elastic Cloud, проверьте настройки!");
+            }
+            else
+            {
+                ElasticsearchHelper.CreateDocument(AppResources.elasticSearchClient, AppResources.indexName, ElasticsearchHelper.PrepareDataForIndexing());
+            }
+
         }
 
         private void SettingsButton_Click(object sender, RoutedEventArgs e)

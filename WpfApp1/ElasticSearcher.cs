@@ -7,19 +7,25 @@ namespace CSVToDBWithElasticIndexing
 {
     public class ElasticsearchHelper
     {
-        static string cloudID = AppResources.elasticCloudID;
         public static ElasticClient GetESClient()
         {
-
-            var credentials = new BasicAuthenticationCredentials(AppResources.elasticUserName, AppResources.elasticPassword);
-            var connectionPool = new CloudConnectionPool(cloudID, credentials);
-            var connectionSettings = new ConnectionSettings(connectionPool)
-                .EnableApiVersioningHeader()
-                .DefaultIndex(AppResources.indexName)
-                .ThrowExceptions()
-                .EnableDebugMode();
-            var elasticClient = new ElasticClient(connectionSettings);
-            return elasticClient;
+            try
+            {
+                var credentials = new BasicAuthenticationCredentials(AppResources.ElasticUserName, AppResources.ElasticPassword);
+                var connectionPool = new CloudConnectionPool(AppResources.ElasticCloudID, credentials);
+                var connectionSettings = new ConnectionSettings(connectionPool)
+                    .EnableApiVersioningHeader()
+                    .DefaultIndex(AppResources.indexName)
+                    .ThrowExceptions()
+                    .EnableDebugMode();
+                var elasticClient = new ElasticClient(connectionSettings);
+                return elasticClient;
+            }
+            catch
+            {
+                Messages.ErrorMessage("Не удалось подключиться к Elastic Cloud, проверьте настройки!");
+            }
+            return null;
         }
         public static List<Post> PrepareDataForIndexing()
         {
@@ -46,7 +52,7 @@ namespace CSVToDBWithElasticIndexing
         public static List<Record> SearchDocument(ElasticClient elasticClient, string indexName, string stringToSearch)
         {
             var searchResponse = elasticClient.Search<Record>(s => s
-                .Size(AppResources.searchResultsCount)
+                .Size(AppResources.SearchResultsCount)
                 .Index(indexName)
                 .Query(q => q
                     .Term(t => t.ItemsToIndex, stringToSearch)

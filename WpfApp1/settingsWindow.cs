@@ -37,22 +37,22 @@ namespace CSVToDBWithElasticIndexing
             var saveButton = new Button();
             var closeButton = new Button();
             cIDBinding.Source = resources;
-            cIDBinding.Path = new PropertyPath("elasticCloudID");
+            cIDBinding.Path = new PropertyPath("ElasticCloudID");
             cIDBinding.Mode = BindingMode.TwoWay;
             cIDBinding.UpdateSourceTrigger = UpdateSourceTrigger.Explicit;
             cloudIDTextBox.SetBinding(TextBox.TextProperty, cIDBinding);
             nameBinding.Source = resources;
-            nameBinding.Path = new PropertyPath("elasticUserName");
+            nameBinding.Path = new PropertyPath("ElasticUserName");
             nameBinding.Mode = BindingMode.TwoWay;
             nameBinding.UpdateSourceTrigger = UpdateSourceTrigger.Explicit;
             userNameTextBox.SetBinding(TextBox.TextProperty, nameBinding);
             passBinding.Source = resources;
-            passBinding.Path = new PropertyPath("elasticPassword");
+            passBinding.Path = new PropertyPath("ElasticPassword");
             passBinding.Mode = BindingMode.TwoWay;
             passBinding.UpdateSourceTrigger = UpdateSourceTrigger.Explicit;
             passwordTextBox.SetBinding(TextBox.TextProperty, passBinding);
             resultsBinding.Source = resources;
-            resultsBinding.Path = new PropertyPath("searchResultsCount");
+            resultsBinding.Path = new PropertyPath("SearchResultsCount");
             resultsBinding.Mode = BindingMode.TwoWay;
             resultsBinding.UpdateSourceTrigger = UpdateSourceTrigger.Explicit;
             resultsCountTextBox.SetBinding(TextBox.TextProperty, resultsBinding);
@@ -95,6 +95,7 @@ namespace CSVToDBWithElasticIndexing
                 passwordTextBox.GetBindingExpression(TextBox.TextProperty).UpdateSource();
                 resultsCountTextBox.GetBindingExpression(TextBox.TextProperty).UpdateSource();
                 Settings.SaveSettingsToIni();
+                ElasticsearchHelper.GetESClient();
             };
             settings.ShowDialog();
         }
