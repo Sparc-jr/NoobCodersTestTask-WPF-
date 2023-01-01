@@ -8,16 +8,23 @@ namespace CSVToDBWithElasticIndexing
         private static int fieldsCount;
         private static List<FieldsToIndexSelection> fieldsToIndex;
         private List<object> fields;
-
         public static int FieldsCount;
         public static List<FieldsToIndexSelection> FieldsToIndex;
-        public static List<string> namesOfFields;
+        //public static List<string> namesOfFields;
         public static List<Type> typesOfFields;
         public List<object> Fields { get; set; }
 
         public Post()
         {
             Fields = new List<object>();
+        }
+
+        public static void Clear()
+        {
+            FieldsCount = 0;
+            FieldsToIndex.Clear();
+            //Fields.Clear();
+            typesOfFields.Clear();
         }
     }
 

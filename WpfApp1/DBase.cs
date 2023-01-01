@@ -14,32 +14,32 @@ namespace CSVToDBWithElasticIndexing
         public static bool OpenFile(string fileName)
         {
             AppResources.dBaseFileName = fileName;
-            ConnectDBase(AppResources.dBaseFileName);
-            ReadDBaseHeader(AppResources.dBaseFileName);
-            MainWindow mainWindow = new MainWindow();
+            ConnectDBase();
+            ReadDBaseHeader();
+            MainWindow mainWindow = new ();
             mainWindow.RefreshDataGridView();
             AppResources.tableIsIndexed = false;
             Messages.InfoMessage("Файл открыт");
             return true;
         }
-        public static void ReadDBaseHeader(string dBaseName)
+        public static void ReadDBaseHeader()
         {
-            var post = new Post();
-            Post.namesOfFields = new List<string>();
-            Post.typesOfFields = new List<Type>();
-            Post.FieldsToIndex = new List<FieldsToIndexSelection>();
+            //Post.namesOfFields = new List<string>();
+            //Post.typesOfFields = new List<Type>();
+            //Post.FieldsToIndex = new List<FieldsToIndexSelection>();
+            Post.Clear();
             var sqlCommand = new SQLiteCommand($"SELECT * FROM {Path.GetFileNameWithoutExtension(AppResources.dBaseFileName)}", AppResources.dBaseConnection);
             var dataReader = sqlCommand.ExecuteReader();
             Post.FieldsCount = dataReader.FieldCount;
             for (var i = 0; i < Post.FieldsCount; i++)
             {
-                Post.namesOfFields.Add(dataReader.GetName(i));
+                //Post.namesOfFields.Add(dataReader.GetName(i));
                 Post.typesOfFields.Add(TypesResponser.GetDBaseColumnType(dataReader.GetDataTypeName(i)));
-                Post.FieldsToIndex.Add(new(false, Post.namesOfFields[i]));
+                Post.FieldsToIndex.Add(new(false, dataReader.GetName(i)));
             }
             Post.FieldsToIndex[1].isChecked = true;
         }
-        public static bool CreateDBase(string dBaseName)
+        public static bool ExportToDBase(string dBaseName)
         {
             if (!File.Exists(dBaseName))
             {
@@ -60,7 +60,7 @@ namespace CSVToDBWithElasticIndexing
                 }
                 else if (dialogResult == Messages.DialogResult.No)
                 {
-                    return ConnectDBase(dBaseName);
+                    return ConnectDBase();
                 }
             }
             return false;
@@ -80,7 +80,7 @@ namespace CSVToDBWithElasticIndexing
                 commandLine.Append("id INTEGER PRIMARY KEY AUTOINCREMENT, ");
                 for (int i = 0; i < Post.FieldsCount; i++)
                 {
-                    commandLine.Append(Post.namesOfFields[i]);
+                    commandLine.Append(Post.FieldsToIndex[i].name);
                     switch (Post.typesOfFields[i].Name)
                     {
                         case "long": commandLine.Append(" INTEGER"); break;
@@ -90,7 +90,7 @@ namespace CSVToDBWithElasticIndexing
                     }
                     if (i < Post.FieldsCount - 1) commandLine.Append(", ");
                 }
-                commandLine.Append(")");
+                commandLine.Append(')');
 
                 sQLCommand.CommandText = commandLine.ToString();
                 sQLCommand.ExecuteNonQuery();
@@ -98,10 +98,10 @@ namespace CSVToDBWithElasticIndexing
                 commandLine.Append($"CREATE UNIQUE INDEX record ON {Path.GetFileNameWithoutExtension(dBaseName)}(");
                 for (int i = 0; i < Post.FieldsCount; i++)
                 {
-                    commandLine.Append(Post.namesOfFields[i]);
+                    commandLine.Append(Post.FieldsToIndex[i].name);
                     if (i < Post.FieldsCount - 1) commandLine.Append(", ");
                 }
-                commandLine.Append(")");
+                commandLine.Append(')');
                 sQLCommand.CommandText = commandLine.ToString();
                 sQLCommand.ExecuteNonQuery();
                 return true;
@@ -113,13 +113,13 @@ namespace CSVToDBWithElasticIndexing
             }
         }
 
-        public static bool ConnectDBase(string dBaseName)
+        public static bool ConnectDBase()
         {
             try
             {
                 var sQLCommand = new SQLiteCommand();
                 AppResources.dBaseConnection.Dispose();
-                AppResources.dBaseConnection = new SQLiteConnection("Data Source=" + dBaseName + ";Version=3;New=False;Compress=True;");
+                AppResources.dBaseConnection = new SQLiteConnection("Data Source=" + AppResources.dBaseFileName + ";Version=3;New=False;Compress=True;");
                 AppResources.dBaseConnection.Open();
             }
             catch (SQLiteException ex)
@@ -138,15 +138,17 @@ namespace CSVToDBWithElasticIndexing
                 Messages.ErrorMessage("No connection with database");
                 return;
             }
-            var sQLCommand = new SQLiteCommand();
-            sQLCommand.Connection = AppResources.dBaseConnection;
+            var sQLCommand = new SQLiteCommand
+            {
+                Connection = AppResources.dBaseConnection
+            };
             var commandLine = new StringBuilder();
             try
             {
                 commandLine.Append($"INSERT OR IGNORE INTO {Path.GetFileNameWithoutExtension(dBaseName)} (");
                 for (int i = 0; i < Post.FieldsCount; i++)
                 {
-                    commandLine.Append($"'{Post.namesOfFields[i]}'");
+                    commandLine.Append($"'{Post.FieldsToIndex[i].name}'");
                     if (i < Post.FieldsCount - 1) commandLine.Append(", ");
                 }
 
@@ -154,15 +156,17 @@ namespace CSVToDBWithElasticIndexing
                 commandLine.Append(") Values (");
                 for (int i = 0; i < Post.FieldsCount; i++)
                 {
-                    commandLine.Append($"@{Post.namesOfFields[i]}");
+                    commandLine.Append($"@{Post.FieldsToIndex[i].name}");
                     if (i < Post.FieldsCount - 1) commandLine.Append(", ");
                 }
-                commandLine.Append(")");
+                commandLine.Append(')');
                 for (int i = 0; i < Post.FieldsCount; i++)
                 {
-                    SQLiteParameter sqlParameter = new SQLiteParameter();
-                    sqlParameter.ParameterName = $"@{Post.namesOfFields[i]}";
-                    sqlParameter.Value = record.Fields[i];
+                    var sqlParameter = new SQLiteParameter()
+                    {
+                        ParameterName = $"@{Post.FieldsToIndex[i].name}",
+                        Value = record.Fields[i]
+                    };
                     sQLCommand.Parameters.Add(sqlParameter);
                 }
 
@@ -180,14 +184,12 @@ namespace CSVToDBWithElasticIndexing
         {
             var fields = new StringBuilder();
             fields.AppendJoin(", ", fieldsNames);
-            SQLiteDataAdapter sQLiteDataAdapter = new SQLiteDataAdapter($"SELECT id, {fields} FROM {Path.GetFileNameWithoutExtension(AppResources.dBaseFileName)}",
+            var sQLiteDataAdapter = new SQLiteDataAdapter($"SELECT id, {fields} FROM {Path.GetFileNameWithoutExtension(AppResources.dBaseFileName)}",
                                                                         AppResources.dBaseConnection);
-            DataSet dataSet = new DataSet();
+            var dataSet = new DataSet();
             sQLiteDataAdapter.Fill(dataSet);
-            DataTable dataTable = new DataTable();
-            dataTable = dataSet.Tables[0];
             var postsTable = new List<Record>();
-            foreach (DataRow row in dataTable.Rows)
+            foreach (DataRow row in dataSet.Tables[0].Rows)
             {
                 var items = new List<object>();
                 for (int i = 0; i < Post.FieldsCount; i++)
@@ -207,8 +209,10 @@ namespace CSVToDBWithElasticIndexing
         {
             try
             {
-                var sQLCommand = new SQLiteCommand();
-                sQLCommand.Connection = AppResources.dBaseConnection;
+                var sQLCommand = new SQLiteCommand
+                {
+                    Connection = AppResources.dBaseConnection
+                };
                 foreach (long id in idList)
                 {
                     sQLCommand.CommandText = $"DELETE FROM {Path.GetFileNameWithoutExtension(AppResources.dBaseFileName)} WHERE id like {id}";

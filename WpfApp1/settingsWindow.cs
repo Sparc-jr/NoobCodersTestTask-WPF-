@@ -17,60 +17,15 @@ namespace CSVToDBWithElasticIndexing
             settings.Height = 250;
             settings.ResizeMode = ResizeMode.NoResize;
             settings.WindowStyle = WindowStyle.None;
-            var cloudIDTextBox = new TextBox();
-            var userNameTextBox = new TextBox();
-            userNameTextBox.Width = 150;
-            var passwordTextBox = new TextBox();
-            passwordTextBox.Width = 150;
-            var resultsCountTextBox = new TextBox();
-            resultsCountTextBox.Width = 50;
             var stackPanel = new StackPanel { Orientation = Orientation.Vertical };
-            var cIDBinding = new Binding();
-            var nameBinding = new Binding();
-            var passBinding = new Binding();
-            var resultsBinding = new Binding();
+            var cloudIDTextBox = SetCloudIDControls(stackPanel, resources);
+            var userNameTextBox = SetUserNameControls(stackPanel, resources);
+            var passwordTextBox = SetPasswordControls(stackPanel, resources);
+            var resultsCountTextBox = SetResultsCountControls(stackPanel, resources);
             var saveButton = new Button();
             var closeButton = new Button();
-            cIDBinding.Source = resources;
-            cIDBinding.Path = new PropertyPath("ElasticCloudID");
-            cIDBinding.Mode = BindingMode.TwoWay;
-            cIDBinding.UpdateSourceTrigger = UpdateSourceTrigger.Explicit;
-            cloudIDTextBox.SetBinding(TextBox.TextProperty, cIDBinding);
-            nameBinding.Source = resources;
-            nameBinding.Path = new PropertyPath("ElasticUserName");
-            nameBinding.Mode = BindingMode.TwoWay;
-            nameBinding.UpdateSourceTrigger = UpdateSourceTrigger.Explicit;
-            userNameTextBox.SetBinding(TextBox.TextProperty, nameBinding);
-            passBinding.Source = resources;
-            passBinding.Path = new PropertyPath("ElasticPassword");
-            passBinding.Mode = BindingMode.TwoWay;
-            passBinding.UpdateSourceTrigger = UpdateSourceTrigger.Explicit;
-            passwordTextBox.SetBinding(TextBox.TextProperty, passBinding);
-            resultsBinding.Source = resources;
-            resultsBinding.Path = new PropertyPath("SearchResultsCount");
-            resultsBinding.Mode = BindingMode.TwoWay;
-            resultsBinding.UpdateSourceTrigger = UpdateSourceTrigger.Explicit;
-            resultsCountTextBox.SetBinding(TextBox.TextProperty, resultsBinding);
-            var cIDLabel = new Label();
-            var userNameLabel = new Label();
-            userNameLabel.Width = 150;
-            var passwordLabel = new Label();
-            passwordLabel.Width = 150;
-            var resultsLabel = new Label();
-            cIDLabel.Content = $"Настройки авторизации в Elastic\nCloudID:";
-            userNameLabel.Content = "имя пользователя:";
-            passwordLabel.Content = "пароль:";
-            resultsLabel.Content = "Отображаемое количество результатов поиска:";
             saveButton.Content = "Сохранить";
             closeButton.Content = "Закрыть";
-            stackPanel.Children.Add(cIDLabel);
-            stackPanel.Children.Add(cloudIDTextBox);
-            stackPanel.Children.Add(userNameLabel);
-            stackPanel.Children.Add(userNameTextBox);
-            stackPanel.Children.Add(passwordLabel);
-            stackPanel.Children.Add(passwordTextBox);
-            stackPanel.Children.Add(resultsLabel);
-            stackPanel.Children.Add(resultsCountTextBox);
             stackPanel.Children.Add(saveButton);
             stackPanel.Children.Add(closeButton);
             settings.Content = stackPanel;
@@ -95,9 +50,74 @@ namespace CSVToDBWithElasticIndexing
             settings.ShowDialog();
         }
 
+        private static TextBox SetCloudIDControls(StackPanel stackPanel, AppResources resources)
+        {
+            var cloudIDTextBox = new TextBox();
+            var cIDBinding = new Binding();
+            cIDBinding.Source = resources;
+            cIDBinding.Path = new PropertyPath("ElasticCloudID");
+            cIDBinding.Mode = BindingMode.TwoWay;
+            cIDBinding.UpdateSourceTrigger = UpdateSourceTrigger.Explicit;
+            cloudIDTextBox.SetBinding(TextBox.TextProperty, cIDBinding);
+            var cIDLabel = new Label();
+            cIDLabel.Content = $"Настройки авторизации в Elastic\nCloudID:";
+            stackPanel.Children.Add(cIDLabel);
+            stackPanel.Children.Add(cloudIDTextBox);
+            return cloudIDTextBox;
+        }
+
+        private static TextBox SetUserNameControls(StackPanel stackPanel, AppResources resources)
+        {
+            var userNameTextBox = new TextBox();
+            userNameTextBox.Width = 150;
+            var nameBinding = new Binding();
+            nameBinding.Source = resources;
+            nameBinding.Path = new PropertyPath("ElasticUserName");
+            nameBinding.Mode = BindingMode.TwoWay;
+            nameBinding.UpdateSourceTrigger = UpdateSourceTrigger.Explicit;
+            userNameTextBox.SetBinding(TextBox.TextProperty, nameBinding);
+            var userNameLabel = new Label();
+            userNameLabel.Width = 150;
+            userNameLabel.Content = "имя пользователя:";
+            stackPanel.Children.Add(userNameLabel);
+            stackPanel.Children.Add(userNameTextBox);
+            return userNameTextBox;
+        }
+        private static TextBox SetPasswordControls(StackPanel stackPanel, AppResources resources)
+        {
+            var passwordTextBox = new TextBox();
+            passwordTextBox.Width = 150;
+            var passBinding = new Binding();
+            passBinding.Source = resources;
+            passBinding.Path = new PropertyPath("ElasticPassword");
+            passBinding.Mode = BindingMode.TwoWay;
+            passBinding.UpdateSourceTrigger = UpdateSourceTrigger.Explicit;
+            passwordTextBox.SetBinding(TextBox.TextProperty, passBinding);
+            var passwordLabel = new Label();
+            passwordLabel.Width = 150;
+            passwordLabel.Content = "пароль:";
+            stackPanel.Children.Add(passwordLabel);
+            stackPanel.Children.Add(passwordTextBox);
+            return passwordTextBox;
+        }
+        private static TextBox SetResultsCountControls(StackPanel stackPanel, AppResources resources)
+        {
+            var resultsCountTextBox = new TextBox();
+            resultsCountTextBox.Width = 50;
+            var resultsBinding = new Binding();
+            resultsBinding.Source = resources;
+            resultsBinding.Path = new PropertyPath("SearchResultsCount");
+            resultsBinding.Mode = BindingMode.TwoWay;
+            resultsBinding.UpdateSourceTrigger = UpdateSourceTrigger.Explicit;
+            resultsCountTextBox.SetBinding(TextBox.TextProperty, resultsBinding);
+            var resultsLabel = new Label();
+            resultsLabel.Content = "Отображаемое количество результатов поиска:";
+            stackPanel.Children.Add(resultsLabel);
+            stackPanel.Children.Add(resultsCountTextBox);
+            return resultsCountTextBox;
+        }
         private static void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
-
             Regex regex = new Regex("[^0-9]");
             e.Handled = regex.IsMatch(e.Text);
         }

@@ -34,6 +34,8 @@ namespace CSVToDBWithElasticIndexing
             AppResources.elasticSearchClient = ElasticsearchHelper.GetESClient();
             var response = AppResources.elasticSearchClient.ClusterHealth(new ClusterHealthRequest() { WaitForStatus = WaitForStatus.Red });
             ElasticStatusLabel.Content = $"Elastic status {response.Status.ToString()}";
+            Post.typesOfFields = new List<Type>();
+            Post.FieldsToIndex = new List<FieldsToIndexSelection>();
         }
 
         private void Button_OpenCSV_Click(object sender, RoutedEventArgs e)
@@ -104,7 +106,7 @@ namespace CSVToDBWithElasticIndexing
                 DataSet dataSet = new DataSet();
                 dataSet.Tables.Add(new DataTable());
                 dataSet.Tables[0].Columns.Add("id");
-                for (int i = 1; i < Post.FieldsCount; i++)
+                for (int i = 0; i < Post.FieldsCount; i++)
                 {
                     if (!Post.FieldsToIndex[i].isChecked)
                     {
@@ -125,7 +127,7 @@ namespace CSVToDBWithElasticIndexing
                     row["id"] = result.Id;
                     for (int i = 0; i < columnsNumber; i++)
                     {
-                        row[dataSet.Tables[0].Columns[i + 1]] = result.ItemsToIndex[i];
+                        row[dataSet.Tables[0].Columns[i+1]] = result.ItemsToIndex[i];
                     }
                     row.EndEdit();
                     dataSet.Tables[0].Rows.Add(row);
@@ -171,6 +173,8 @@ namespace CSVToDBWithElasticIndexing
             GC.Collect();
             GC.WaitForPendingFinalizers();
             Application.Current.Shutdown();
+            Logging.Write("app closed");
+            return;
         }
 
         private void IndexingButton_Click(object sender, RoutedEventArgs e)
@@ -181,7 +185,7 @@ namespace CSVToDBWithElasticIndexing
             }
             else
             {
-                ElasticsearchHelper.CreateDocument(AppResources.elasticSearchClient, AppResources.indexName, ElasticsearchHelper.PrepareDataForIndexing());
+                ElasticsearchHelper.CreateDocument(AppResources.elasticSearchClient, AppResources.indexName);
             }
 
         }

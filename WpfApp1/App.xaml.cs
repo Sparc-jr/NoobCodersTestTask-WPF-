@@ -11,6 +11,7 @@ namespace CSVToDBWithElasticIndexing
     {
         public App()
         {
+            Logging.Write("app started");
             this.Dispatcher.UnhandledException += OnDispatcherUnhandledException;
             ShutdownMode = ShutdownMode.OnLastWindowClose;
         }
@@ -19,7 +20,7 @@ namespace CSVToDBWithElasticIndexing
         {
             string errorMessage = string.Format("An unhandled exception occurred: {0}", e.Exception.Message);
             MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            File.AppendAllText("error.log", $"[{DateTime.Now}]: {e.Exception.Source}\n {errorMessage}\n");
+            Logging.Write($"{e.Exception.Source}\n {errorMessage}");
             e.Handled = true;
         }
     }

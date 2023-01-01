@@ -16,10 +16,11 @@ namespace CSVToDBWithElasticIndexing
             AppResources.csvFileName = fileName;
             AppResources.dBaseFileName = $"{Path.GetDirectoryName(fileName)}\\{Path.GetFileNameWithoutExtension(fileName)}.db";
             AppResources.indexName = Path.GetFileNameWithoutExtension(fileName).ToLower();
+            Post.Clear();
             CSVReader.ReadCSVHeader(fileName);
             CSVReader.ReadCSVTypes(fileName);
             AppResources.dBaseConnection.Dispose();
-            if (DBase.CreateDBase(AppResources.dBaseFileName) == false) return false;
+            if (DBase.ExportToDBase(AppResources.dBaseFileName) == false) return false;
             return CSVReader.ReadCSVandSaveToDataBase(fileName, AppResources.dBaseFileName);
         }
 
@@ -36,8 +37,12 @@ namespace CSVToDBWithElasticIndexing
                     bool firstRecord = true;
                     csv.Read();
                     csv.ReadHeader();
-                    Post.namesOfFields = csv.HeaderRecord.ToList();
-                    Post.FieldsCount = Post.namesOfFields.Count;
+                    var fieldsNames = csv.HeaderRecord.ToList();
+                    foreach (var field in fieldsNames)
+                    {
+                        Post.FieldsToIndex.Add(new FieldsToIndexSelection(false, field));
+                    }
+                    Post.FieldsCount = Post.FieldsToIndex.Count;
                 }
             }
             catch
@@ -85,7 +90,7 @@ namespace CSVToDBWithElasticIndexing
                         }
                         DBase.AddDataToBase(fileDBasePath, nextPost);
                     }
-                    DBase.ReadDBaseHeader(AppResources.dBaseFileName);
+                    DBase.ReadDBaseHeader();
                     AppResources.tableIsIndexed = false;
                     Messages.InfoMessage("Файл открыт. Данные успешно экспортированы в БД");
                 }

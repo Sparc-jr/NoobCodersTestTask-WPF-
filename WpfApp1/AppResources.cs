@@ -10,44 +10,10 @@ namespace CSVToDBWithElasticIndexing
         public static SQLiteConnection dBaseConnection;
         public static bool tableIsIndexed { get; set; }
         public static string indexName = "posts";  // default name
-        private static string elasticCloudID;
-        private static string elasticUserName;
-        private static string elasticPassword;
         private static int searchResultsCount;
-        public static string ElasticCloudID
-        {
-            get
-            {
-                return elasticCloudID;
-            }
-            set
-            {
-                elasticCloudID = value != string.Empty ? value : "none:NoneCloudIDNoneCloudID=="; //hcnkgYmxvYg
-            }
-        }
-        public static string ElasticUserName
-        {
-            get
-            {
-                return elasticUserName;
-            }
-            set
-            {
-                elasticUserName = value != string.Empty ? value : "user";
-            }
-        }
-
-        public static string ElasticPassword
-        {
-            get
-            {
-                return elasticPassword;
-            }
-            set
-            {
-                elasticPassword = value != string.Empty ? value : "pass";
-            }
-        }
+        public static string ElasticCloudID { get; set; }
+        public static string ElasticUserName { get; set; }
+        public static string ElasticPassword { get; set; }
         public static int SearchResultsCount
         {
             get
@@ -62,10 +28,7 @@ namespace CSVToDBWithElasticIndexing
         public static ElasticClient elasticSearchClient { get; set; }
         public AppResources()
         {
-            //ElasticCloudID = string.Empty;
-            //ElasticUserName = string.Empty;
-            //ElasticPassword = string.Empty;
-            //SearchResultsCount = 0;
+            SearchResultsCount = 0;
         }
     }
 

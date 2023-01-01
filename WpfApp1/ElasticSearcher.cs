@@ -39,26 +39,16 @@ namespace CSVToDBWithElasticIndexing
             }
             catch (SystemException ex)
             {
-                Messages.ErrorMessage($"Не удалось подключиться к Elastic Cloud, проверьте настройки! \n{ex.Source.ToString()}\n{ex.Message}\n");
-                File.AppendAllText("error.log", $"[{DateTime.Now}]: {ex.Source.ToString()}\n{ex.Message}\n");
+                Messages.ErrorMessage($"Не удалось подключиться к Elastic Cloud, проверьте настройки! \n{ex.Source}\n{ex.Message}\n");
+                Logging.Write($"{ex.Source}\n{ex.Message}");
             }
             return null;
         }
-        public static List<Post> PrepareDataForIndexing()
-        {
-            var targetWindow = Application.Current.Windows.Cast<MainWindow>().FirstOrDefault(window => window is MainWindow) as MainWindow;
-            var postsTable = new List<Post>();
-            for (int i = 0; i < targetWindow.DataGridSource.Items.Count - 1; i++)
-            {
-                postsTable.Add(new Post());
-            }
-            return postsTable;
-        }
-        public static void CreateDocument(ElasticClient elasticClient, string indexName, List<Post> posts)
+        public static void CreateDocument(ElasticClient elasticClient, string indexName)
         {
             try
             {
-                MainWindow mainWindow = new MainWindow();
+                var mainWindow = new MainWindow();
                 elasticClient.DeleteIndex(indexName);
                 var postsToIndex = DBase.PrepareDataForIndexing(Post.FieldsToIndex.Where(x => x.isChecked).Select(x => x.name).ToArray());
                 var response = elasticClient.IndexMany(postsToIndex, AppResources.indexName);
