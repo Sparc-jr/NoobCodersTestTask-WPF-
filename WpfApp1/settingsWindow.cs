@@ -32,7 +32,6 @@ namespace CSVToDBWithElasticIndexing
             resultsCountTextBox.PreviewTextInput += (s, args) =>
             {
                 NumberValidationTextBox(s, args);
-
             };
             closeButton.Click += (s, args) =>
             {
@@ -53,14 +52,18 @@ namespace CSVToDBWithElasticIndexing
         private static TextBox SetCloudIDControls(StackPanel stackPanel, AppResources resources)
         {
             var cloudIDTextBox = new TextBox();
-            var cIDBinding = new Binding();
-            cIDBinding.Source = resources;
-            cIDBinding.Path = new PropertyPath("ElasticCloudID");
-            cIDBinding.Mode = BindingMode.TwoWay;
-            cIDBinding.UpdateSourceTrigger = UpdateSourceTrigger.Explicit;
+            var cIDBinding = new Binding
+            {
+                Source = resources,
+                Path = new PropertyPath("ElasticCloudID"),
+                Mode = BindingMode.TwoWay,
+                UpdateSourceTrigger = UpdateSourceTrigger.Explicit
+            };
             cloudIDTextBox.SetBinding(TextBox.TextProperty, cIDBinding);
-            var cIDLabel = new Label();
-            cIDLabel.Content = $"Настройки авторизации в Elastic\nCloudID:";
+            var cIDLabel = new Label
+            {
+                Content = $"Настройки авторизации в Elastic.\nCloudID:"
+            };
             stackPanel.Children.Add(cIDLabel);
             stackPanel.Children.Add(cloudIDTextBox);
             return cloudIDTextBox;
@@ -70,15 +73,19 @@ namespace CSVToDBWithElasticIndexing
         {
             var userNameTextBox = new TextBox();
             userNameTextBox.Width = 150;
-            var nameBinding = new Binding();
-            nameBinding.Source = resources;
-            nameBinding.Path = new PropertyPath("ElasticUserName");
-            nameBinding.Mode = BindingMode.TwoWay;
-            nameBinding.UpdateSourceTrigger = UpdateSourceTrigger.Explicit;
+            var nameBinding = new Binding
+            {
+                Source = resources,
+                Path = new PropertyPath("ElasticUserName"),
+                Mode = BindingMode.TwoWay,
+                UpdateSourceTrigger = UpdateSourceTrigger.Explicit
+            };
             userNameTextBox.SetBinding(TextBox.TextProperty, nameBinding);
-            var userNameLabel = new Label();
-            userNameLabel.Width = 150;
-            userNameLabel.Content = "имя пользователя:";
+            var userNameLabel = new Label
+            {
+                Width = 150,
+                Content = "имя пользователя:"
+            };
             stackPanel.Children.Add(userNameLabel);
             stackPanel.Children.Add(userNameTextBox);
             return userNameTextBox;
@@ -87,15 +94,19 @@ namespace CSVToDBWithElasticIndexing
         {
             var passwordTextBox = new TextBox();
             passwordTextBox.Width = 150;
-            var passBinding = new Binding();
-            passBinding.Source = resources;
-            passBinding.Path = new PropertyPath("ElasticPassword");
-            passBinding.Mode = BindingMode.TwoWay;
-            passBinding.UpdateSourceTrigger = UpdateSourceTrigger.Explicit;
+            var passBinding = new Binding
+            {
+                Source = resources,
+                Path = new PropertyPath("ElasticPassword"),
+                Mode = BindingMode.TwoWay,
+                UpdateSourceTrigger = UpdateSourceTrigger.Explicit
+            };
             passwordTextBox.SetBinding(TextBox.TextProperty, passBinding);
-            var passwordLabel = new Label();
-            passwordLabel.Width = 150;
-            passwordLabel.Content = "пароль:";
+            var passwordLabel = new Label
+            {
+                Width = 150,
+                Content = "пароль:"
+            };
             stackPanel.Children.Add(passwordLabel);
             stackPanel.Children.Add(passwordTextBox);
             return passwordTextBox;
@@ -104,21 +115,25 @@ namespace CSVToDBWithElasticIndexing
         {
             var resultsCountTextBox = new TextBox();
             resultsCountTextBox.Width = 50;
-            var resultsBinding = new Binding();
-            resultsBinding.Source = resources;
-            resultsBinding.Path = new PropertyPath("SearchResultsCount");
-            resultsBinding.Mode = BindingMode.TwoWay;
-            resultsBinding.UpdateSourceTrigger = UpdateSourceTrigger.Explicit;
+            var resultsBinding = new Binding
+            {
+                Source = resources,
+                Path = new PropertyPath("SearchResultsCount"),
+                Mode = BindingMode.TwoWay,
+                UpdateSourceTrigger = UpdateSourceTrigger.Explicit
+            };
             resultsCountTextBox.SetBinding(TextBox.TextProperty, resultsBinding);
-            var resultsLabel = new Label();
-            resultsLabel.Content = "Отображаемое количество результатов поиска:";
+            var resultsLabel = new Label
+            {
+                Content = "Отображаемое количество результатов поиска:"
+            };
             stackPanel.Children.Add(resultsLabel);
             stackPanel.Children.Add(resultsCountTextBox);
             return resultsCountTextBox;
         }
         private static void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
-            Regex regex = new Regex("[^0-9]");
+            var regex = new Regex("[^0-9]");
             e.Handled = regex.IsMatch(e.Text);
         }
     }

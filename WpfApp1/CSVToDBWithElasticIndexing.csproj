@@ -17,10 +17,12 @@
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="30.0.1" />
+    <PackageReference Include="Elastic.Apm" Version="1.19.0" />
     <PackageReference Include="Elastic.Apm.AspNetCore" Version="1.19.0" />
+    <PackageReference Include="Elasticsearch.Net" Version="7.17.5" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.0" />
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="7.0.0" />
-    <PackageReference Include="NEST" Version="7.17.0" />
+    <PackageReference Include="NEST" Version="7.17.5" />
     <PackageReference Include="NEST.7xUpgradeAssistant" Version="7.1.0" />
     <PackageReference Include="SQLite" Version="3.13.0" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.117" />

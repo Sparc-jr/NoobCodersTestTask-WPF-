@@ -7,11 +7,11 @@ namespace CSVToDBWithElasticIndexing
     {
         private static int fieldsCount;
         private static List<FieldsToIndexSelection> fieldsToIndex;
+        private static List<Type> typesOfFields;
         private List<object> fields;
-        public static int FieldsCount;
-        public static List<FieldsToIndexSelection> FieldsToIndex;
-        //public static List<string> namesOfFields;
-        public static List<Type> typesOfFields;
+        public static int FieldsCount { get; set; }
+        public static List<FieldsToIndexSelection> FieldsToIndex { get; set; }
+        public static List<Type> TypesOfFields { get; set; }
         public List<object> Fields { get; set; }
 
         public Post()
@@ -23,8 +23,7 @@ namespace CSVToDBWithElasticIndexing
         {
             FieldsCount = 0;
             FieldsToIndex.Clear();
-            //Fields.Clear();
-            typesOfFields.Clear();
+            TypesOfFields.Clear();
         }
     }
 

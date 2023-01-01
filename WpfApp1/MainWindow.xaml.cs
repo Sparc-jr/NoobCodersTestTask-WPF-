@@ -34,7 +34,7 @@ namespace CSVToDBWithElasticIndexing
             AppResources.elasticSearchClient = ElasticsearchHelper.GetESClient();
             var response = AppResources.elasticSearchClient.ClusterHealth(new ClusterHealthRequest() { WaitForStatus = WaitForStatus.Red });
             ElasticStatusLabel.Content = $"Elastic status {response.Status.ToString()}";
-            Post.typesOfFields = new List<Type>();
+            Post.TypesOfFields = new List<Type>();
             Post.FieldsToIndex = new List<FieldsToIndexSelection>();
         }
 

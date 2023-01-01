@@ -13,18 +13,18 @@ namespace CSVToDBWithElasticIndexing
             Cancel,
         }
 
-        public static DialogResult overWriteExitedDBase(string dBaseName)
+        public static DialogResult OverWriteExistedDBase(string dBaseName)
         {
             MessageBoxResult result = MessageBox.Show("ДА - создать базу заново\n Нет - добавить записи в существующую базу" +
                                                 "\n Отмена - отменить открытие файла",
                                                 $"База c именем {Path.GetFileNameWithoutExtension(dBaseName)} уже существует, заменить?"
                                                 , MessageBoxButton.YesNoCancel);
-            switch (result)
+            return result switch
             {
-                case MessageBoxResult.Yes: return DialogResult.Yes;
-                case MessageBoxResult.No: return DialogResult.No;
-                default: return DialogResult.Cancel;
-            }
+                MessageBoxResult.Yes => DialogResult.Yes,
+                MessageBoxResult.No => DialogResult.No,
+                _ => DialogResult.Cancel,
+            };
         }
 
         public static void ErrorMessage(string errorMessage)

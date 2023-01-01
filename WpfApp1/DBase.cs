@@ -24,9 +24,6 @@ namespace CSVToDBWithElasticIndexing
         }
         public static void ReadDBaseHeader()
         {
-            //Post.namesOfFields = new List<string>();
-            //Post.typesOfFields = new List<Type>();
-            //Post.FieldsToIndex = new List<FieldsToIndexSelection>();
             Post.Clear();
             var sqlCommand = new SQLiteCommand($"SELECT * FROM {Path.GetFileNameWithoutExtension(AppResources.dBaseFileName)}", AppResources.dBaseConnection);
             var dataReader = sqlCommand.ExecuteReader();
@@ -34,7 +31,7 @@ namespace CSVToDBWithElasticIndexing
             for (var i = 0; i < Post.FieldsCount; i++)
             {
                 //Post.namesOfFields.Add(dataReader.GetName(i));
-                Post.typesOfFields.Add(TypesResponser.GetDBaseColumnType(dataReader.GetDataTypeName(i)));
+                Post.TypesOfFields.Add(TypesResponser.GetDBaseColumnType(dataReader.GetDataTypeName(i)));
                 Post.FieldsToIndex.Add(new(false, dataReader.GetName(i)));
             }
             Post.FieldsToIndex[1].isChecked = true;
@@ -48,7 +45,7 @@ namespace CSVToDBWithElasticIndexing
             }
             else
             {
-                var dialogResult = Messages.overWriteExitedDBase(dBaseName);
+                var dialogResult = Messages.OverWriteExistedDBase(dBaseName);
                 if (dialogResult == Messages.DialogResult.Yes)
                 {
                     AppResources.dBaseConnection.Dispose();
@@ -81,7 +78,7 @@ namespace CSVToDBWithElasticIndexing
                 for (int i = 0; i < Post.FieldsCount; i++)
                 {
                     commandLine.Append(Post.FieldsToIndex[i].name);
-                    switch (Post.typesOfFields[i].Name)
+                    switch (Post.TypesOfFields[i].Name)
                     {
                         case "long": commandLine.Append(" INTEGER"); break;
                         case "DateTime": commandLine.Append(" DATETIME"); break;

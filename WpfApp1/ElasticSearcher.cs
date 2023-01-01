@@ -17,16 +17,8 @@ namespace CSVToDBWithElasticIndexing
         {
             try
             {
-                //File.AppendAllText("error.log", $"[{DateTime.Now}]: get target window - OK\n"); //remove logging
                 var credentials = new BasicAuthenticationCredentials(AppResources.ElasticUserName, AppResources.ElasticPassword);
-                //File.AppendAllText("error.log", $"[{DateTime.Now}]: set elastic authentication credentials - OK\n");  //remove logging
                 var connectionPool = new CloudConnectionPool(AppResources.ElasticCloudID, credentials);
-                //File.AppendAllText("error.log", $"[{DateTime.Now}]: set conection pool - OK\n");  //remove logging
-                //var location = typeof(IElasticLowLevelClient).GetTypeInfo().Assembly.Location;
-                //File.AppendAllText("error.log", $"[{DateTime.Now}]: get elastic client location - OK\nLocation: {location}\n");  //remove logging
-                //var version = FileVersionInfo.GetVersionInfo(location)?.ProductVersion;
-                //File.AppendAllText("error.log", $"[{DateTime.Now}]: get elastic client version - OK\nVersion: {version}\n");  //remove logging
-
                 var connectionSettings = new ConnectionSettings(connectionPool)
                     .DisableDirectStreaming()
                     .EnableApiVersioningHeader()

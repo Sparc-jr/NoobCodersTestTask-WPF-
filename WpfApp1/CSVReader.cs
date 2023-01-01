@@ -24,17 +24,13 @@ namespace CSVToDBWithElasticIndexing
             return CSVReader.ReadCSVandSaveToDataBase(fileName, AppResources.dBaseFileName);
         }
 
-
-
         public static bool ReadCSVHeader(string fileCSVPath)
         {
-            string[] fields = null;
             try
             {
                 using (var reader = new StreamReader(fileCSVPath))
                 using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
                 {
-                    bool firstRecord = true;
                     csv.Read();
                     csv.ReadHeader();
                     var fieldsNames = csv.HeaderRecord.ToList();
@@ -52,7 +48,6 @@ namespace CSVToDBWithElasticIndexing
             return true;
         }
 
-
         public static void ReadCSVTypes(string fileCSVPath)
         {
             using (var reader = new StreamReader(fileCSVPath))
@@ -66,13 +61,12 @@ namespace CSVToDBWithElasticIndexing
                     var field = csv.GetField(i);
                     recordTypes.Add(TypesResponser.GetObjectType(field));
                 }
-                Post.typesOfFields = recordTypes;
+                Post.TypesOfFields = recordTypes;
             }
         }
 
         public static bool ReadCSVandSaveToDataBase(string fileCSVPath, string fileDBasePath)
         {
-            string[] fields = null;
             try
             {
 
@@ -82,11 +76,11 @@ namespace CSVToDBWithElasticIndexing
                     csv.Read();
                     while (csv.Read())
                     {
-                        Post nextPost = new Post();
+                        var nextPost = new Post();
                         for (int i = 0; i < Post.FieldsCount; i++)
                         {
                             var field = csv.GetField(i);
-                            nextPost.Fields.Add(Convert.ChangeType(field, Post.typesOfFields[i]));
+                            nextPost.Fields.Add(Convert.ChangeType(field, Post.TypesOfFields[i]));
                         }
                         DBase.AddDataToBase(fileDBasePath, nextPost);
                     }
