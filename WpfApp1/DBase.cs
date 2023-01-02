@@ -18,7 +18,7 @@ namespace CSVToDBWithElasticIndexing
             ReadDBaseHeader();
             MainWindow mainWindow = new ();
             mainWindow.RefreshDataGridView();
-            AppResources.tableIsIndexed = false;
+            AppResources.TableIsIndexed = false;
             Messages.InfoMessage("Файл открыт");
             return true;
         }
@@ -189,6 +189,7 @@ namespace CSVToDBWithElasticIndexing
             foreach (DataRow row in dataSet.Tables[0].Rows)
             {
                 var items = new List<object>();
+                //items.Add((long)row["id"]);
                 for (int i = 0; i < Post.FieldsCount; i++)
                 {
                     if (!Post.FieldsToIndex[i].isChecked)

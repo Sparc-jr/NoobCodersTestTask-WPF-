@@ -8,8 +8,8 @@ namespace CSVToDBWithElasticIndexing
         public static string csvFileName;
         public static string dBaseFileName;
         public static SQLiteConnection dBaseConnection;
-        public static bool tableIsIndexed { get; set; }
-        public static string indexName = "posts";  // default name
+        public static bool TableIsIndexed { get; set; }
+        public static string indexName = "posts";  // default Name
         private static int searchResultsCount;
         public static string ElasticCloudID { get; set; }
         public static string ElasticUserName { get; set; }
@@ -25,7 +25,7 @@ namespace CSVToDBWithElasticIndexing
                 searchResultsCount = value > 0 ? value : 1;
             }
         }
-        public static ElasticClient elasticSearchClient { get; set; }
+        public static ElasticClient ElasticSearchClient { get; set; }
         public AppResources()
         {
             SearchResultsCount = 0;
@@ -34,7 +34,7 @@ namespace CSVToDBWithElasticIndexing
 
     internal static class Settings
     {
-        private static IniFile iniFile = new IniFile("config.ini");
+        private static readonly IniFile iniFile = new("config.ini");
         internal static void ReadConfigIni()
         {
             if (iniFile.KeyExists("results", "AppSettings"))
@@ -51,7 +51,7 @@ namespace CSVToDBWithElasticIndexing
             else
             {
                 Messages.ErrorMessage("Введите настройки авторизации в elastic");
-                settingsWindow.ShowSettings();
+                SettingsWindow.ShowSettings();
             }
         }
         internal static void SaveSettingsToIni()

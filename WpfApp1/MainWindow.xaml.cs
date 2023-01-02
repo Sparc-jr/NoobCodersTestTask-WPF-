@@ -27,21 +27,23 @@ namespace CSVToDBWithElasticIndexing
         private void Grid_Loaded(object sender, RoutedEventArgs e)
         {
             Settings.ReadConfigIni();
-            AppResources.tableIsIndexed = false;
+            AppResources.TableIsIndexed = false;
             AppResources.dBaseConnection = new SQLiteConnection();
             AppResources.dBaseFileName = "sampleDB.db";
             DBStatusLabel.Content = "DB Disconnected";
-            AppResources.elasticSearchClient = ElasticsearchHelper.GetESClient();
-            var response = AppResources.elasticSearchClient.ClusterHealth(new ClusterHealthRequest() { WaitForStatus = WaitForStatus.Red });
-            ElasticStatusLabel.Content = $"Elastic status {response.Status.ToString()}";
+            AppResources.ElasticSearchClient = ElasticsearchHelper.GetESClient();
+            var response = AppResources.ElasticSearchClient.ClusterHealth(new ClusterHealthRequest() { WaitForStatus = WaitForStatus.Red });
+            ElasticStatusLabel.Content = $"Elastic status {response.Status}";
             Post.TypesOfFields = new List<Type>();
             Post.FieldsToIndex = new List<FieldsToIndexSelection>();
         }
 
         private void Button_OpenCSV_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "CSV files(*.csv)|*.csv";
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "CSV files(*.csv)|*.csv"
+            };
             if (openFileDialog.ShowDialog() == false)
                 return;
             if (CSVReader.OpenFile(openFileDialog.FileName))
@@ -55,8 +57,10 @@ namespace CSVToDBWithElasticIndexing
 
         private void Button_OpenDB_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Database files(*.db)|*.db";
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "Database files(*.db)|*.db"
+            };
             if (openFileDialog.ShowDialog() == false)
                 return;
             DBStatusLabel.Content = DBase.OpenFile(openFileDialog.FileName) ? "DB Connected" : "DB Disconnected";
@@ -77,33 +81,33 @@ namespace CSVToDBWithElasticIndexing
         {
             public CheckedColumn(bool isChecked, string name)
             {
-                this.isChecked = isChecked;
-                this.name = name;
+                this.IsChecked = isChecked;
+                this.Name = name;
             }
 
-            public Boolean isChecked { get; set; }
-            public String name { get; set; }
+            public Boolean IsChecked { get; set; }
+            public String Name { get; set; }
         }
 
 
 
         internal void RefreshDataGridView()
         {
-            SQLiteDataAdapter sQLiteDataAdapter = new SQLiteDataAdapter($"SELECT * FROM {Path.GetFileNameWithoutExtension(AppResources.dBaseFileName)}", AppResources.dBaseConnection);
-            DataSet dataSet = new DataSet();
+            var sQLiteDataAdapter = new SQLiteDataAdapter($"SELECT * FROM {Path.GetFileNameWithoutExtension(AppResources.dBaseFileName)}", AppResources.dBaseConnection);
+            var dataSet = new DataSet();
             sQLiteDataAdapter.Fill(dataSet);
             DataGridSource.ItemsSource = dataSet.Tables[0].DefaultView;
         }
-        private void searchButton_Click(object sender, RoutedEventArgs e)
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
-            if (AppResources.tableIsIndexed == false)
+            if (AppResources.TableIsIndexed == false)
             {
                 Messages.InfoMessage("Сначала проиндексируйте таблицу");
             }
             else
             {
-                var searchResult = ElasticsearchHelper.SearchDocument(AppResources.elasticSearchClient, AppResources.indexName, textBox1.Text.ToLower());
-                DataSet dataSet = new DataSet();
+                var searchResult = ElasticsearchHelper.SearchDocument(AppResources.ElasticSearchClient, AppResources.indexName, textBox1.Text.ToLower());
+                var dataSet = new DataSet();
                 dataSet.Tables.Add(new DataTable());
                 dataSet.Tables[0].Columns.Add("id");
                 for (int i = 0; i < Post.FieldsCount; i++)
@@ -123,7 +127,6 @@ namespace CSVToDBWithElasticIndexing
                 {
                     DataRow row = dataSet.Tables[0].NewRow();
                     row.BeginEdit();
-
                     row["id"] = result.Id;
                     for (int i = 0; i < columnsNumber; i++)
                     {
@@ -135,7 +138,7 @@ namespace CSVToDBWithElasticIndexing
                 dataGridSearchResult.ItemsSource = dataSet.Tables[0].DefaultView;
             }
         }
-        private void textBox1_Loaded(object sender, RoutedEventArgs e)
+        private void TextBox1_Loaded(object sender, RoutedEventArgs e)
         {
             textBox1.SelectAll();
         }
@@ -145,10 +148,10 @@ namespace CSVToDBWithElasticIndexing
             var selectedRecords = dataGridSearchResult.SelectedItems
                 .OfType<DataRowView>().Select(x => Int64.Parse((string)x.Row[0]))
                 .ToArray();
-            ElasticsearchHelper.DeleteDocument(AppResources.elasticSearchClient, AppResources.indexName, selectedRecords);
+            ElasticsearchHelper.DeleteDocument(AppResources.ElasticSearchClient, AppResources.indexName, selectedRecords);
             DBase.DeleteDBaseRow(selectedRecords);
             RefreshDataGridView();
-            searchButton_Click(sender, e);
+            SearchButton_Click(sender, e);
         }
 
         private void OnComboBoxCheckBoxChecked(object sender, RoutedEventArgs e)
@@ -179,20 +182,20 @@ namespace CSVToDBWithElasticIndexing
 
         private void IndexingButton_Click(object sender, RoutedEventArgs e)
         {
-            if (AppResources.elasticSearchClient == null)
+            if (AppResources.ElasticSearchClient == null)
             {
                 Messages.ErrorMessage("Нет подключения к Elastic Cloud, проверьте настройки!");
             }
             else
             {
-                ElasticsearchHelper.CreateDocument(AppResources.elasticSearchClient, AppResources.indexName);
+                ElasticsearchHelper.CreateDocument(AppResources.ElasticSearchClient, AppResources.indexName);
             }
 
         }
 
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
-            settingsWindow.ShowSettings();
+            SettingsWindow.ShowSettings();
         }
 
         private void StrongSearchCheckBox_Checked(object sender, RoutedEventArgs e)

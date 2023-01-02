@@ -14,7 +14,7 @@ namespace CSVToDBWithElasticIndexing
         public static bool OpenFile(string fileName)
         {
             AppResources.csvFileName = fileName;
-            AppResources.dBaseFileName = $"{Path.GetDirectoryName(fileName)}\\{Path.GetFileNameWithoutExtension(fileName)}.db";
+            AppResources.dBaseFileName = $"{Path.GetDirectoryName(fileName)}\\{Path.GetFileNameWithoutExtension(fileName.Replace(' ','_').Replace('-', '_'))}.db";
             AppResources.indexName = Path.GetFileNameWithoutExtension(fileName).ToLower();
             Post.Clear();
             CSVReader.ReadCSVHeader(fileName);
@@ -36,7 +36,7 @@ namespace CSVToDBWithElasticIndexing
                     var fieldsNames = csv.HeaderRecord.ToList();
                     foreach (var field in fieldsNames)
                     {
-                        Post.FieldsToIndex.Add(new FieldsToIndexSelection(false, field));
+                        Post.FieldsToIndex.Add(new FieldsToIndexSelection(false, field.Replace(' ','_')));
                     }
                     Post.FieldsCount = Post.FieldsToIndex.Count;
                 }
@@ -59,7 +59,7 @@ namespace CSVToDBWithElasticIndexing
                 for (int i = 0; i < Post.FieldsCount; i++)
                 {
                     var field = csv.GetField(i);
-                    recordTypes.Add(TypesResponser.GetObjectType(field));
+                    recordTypes.Add(TypesResponser.GetObjectType(field.Trim()));
                 }
                 Post.TypesOfFields = recordTypes;
             }
@@ -80,12 +80,12 @@ namespace CSVToDBWithElasticIndexing
                         for (int i = 0; i < Post.FieldsCount; i++)
                         {
                             var field = csv.GetField(i);
-                            nextPost.Fields.Add(Convert.ChangeType(field, Post.TypesOfFields[i]));
+                            nextPost.Fields.Add(Convert.ChangeType(field.Trim(), Post.TypesOfFields[i]));
                         }
                         DBase.AddDataToBase(fileDBasePath, nextPost);
                     }
                     DBase.ReadDBaseHeader();
-                    AppResources.tableIsIndexed = false;
+                    AppResources.TableIsIndexed = false;
                     Messages.InfoMessage("Файл открыт. Данные успешно экспортированы в БД");
                 }
             }

@@ -46,11 +46,11 @@ namespace CSVToDBWithElasticIndexing
                 var response = elasticClient.IndexMany(postsToIndex, AppResources.indexName);
                 if (response.IsValid) Messages.InfoMessage("Данные успешно импортированы. Индекс создан");
                 else Messages.ErrorMessage(response.ToString());
-                AppResources.tableIsIndexed = true;
+                AppResources.TableIsIndexed = true;
             }
             catch (SystemException ex)
             {
-                Messages.ErrorMessage($"Не удалось создать индекс. \n{ex.Source.ToString()}\n{ex.Message}\n");
+                Messages.ErrorMessage($"Не удалось создать индекс. \n{ex.Source}\n{ex.Message}\n");
             }
         }
 

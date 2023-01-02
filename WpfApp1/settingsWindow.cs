@@ -6,17 +6,19 @@ using System.Windows.Input;
 
 namespace CSVToDBWithElasticIndexing
 {
-    internal class settingsWindow
+    internal class SettingsWindow
     {
         internal static void ShowSettings()
         {
             var resources = new AppResources();
-            var settings = new Window();
-            settings.Title = "settings";
-            settings.Width = 350;
-            settings.Height = 250;
-            settings.ResizeMode = ResizeMode.NoResize;
-            settings.WindowStyle = WindowStyle.None;
+            var settings = new Window
+            {
+                Title = "settings",
+                Width = 350,
+                Height = 250,
+                ResizeMode = ResizeMode.NoResize,
+                WindowStyle = WindowStyle.None
+            };
             var stackPanel = new StackPanel { Orientation = Orientation.Vertical };
             var cloudIDTextBox = SetCloudIDControls(stackPanel, resources);
             var userNameTextBox = SetUserNameControls(stackPanel, resources);
@@ -71,8 +73,10 @@ namespace CSVToDBWithElasticIndexing
 
         private static TextBox SetUserNameControls(StackPanel stackPanel, AppResources resources)
         {
-            var userNameTextBox = new TextBox();
-            userNameTextBox.Width = 150;
+            var userNameTextBox = new TextBox
+            {
+                Width = 150
+            };
             var nameBinding = new Binding
             {
                 Source = resources,
@@ -92,8 +96,10 @@ namespace CSVToDBWithElasticIndexing
         }
         private static TextBox SetPasswordControls(StackPanel stackPanel, AppResources resources)
         {
-            var passwordTextBox = new TextBox();
-            passwordTextBox.Width = 150;
+            var passwordTextBox = new TextBox
+            {
+                Width = 150
+            };
             var passBinding = new Binding
             {
                 Source = resources,
@@ -113,8 +119,10 @@ namespace CSVToDBWithElasticIndexing
         }
         private static TextBox SetResultsCountControls(StackPanel stackPanel, AppResources resources)
         {
-            var resultsCountTextBox = new TextBox();
-            resultsCountTextBox.Width = 50;
+            var resultsCountTextBox = new TextBox
+            {
+                Width = 50
+            };
             var resultsBinding = new Binding
             {
                 Source = resources,
