@@ -1,15 +1,17 @@
 ﻿using Nest;
 using System.Data.SQLite;
+using System.Windows;
 
 namespace CSVToDBWithElasticIndexing
 {
     internal class AppResources
     {
         public static string csvFileName;
-        public static string dBaseFileName;
-        public static SQLiteConnection dBaseConnection;
-        public static bool TableIsIndexed { get; set; }
-        public static string indexName = "posts";  // default Name
+        public static string DBaseFileName { get; set; } = "sampleDB.db";
+        private static SQLiteConnection dBaseConnection;
+        public static SQLiteConnection DBaseConnection { get; set; } 
+        public static bool TableIsIndexed { get; set; } = false;
+        public static string IndexName { get; set; } = "posts";  
         private static int searchResultsCount;
         public static string ElasticCloudID { get; set; }
         public static string ElasticUserName { get; set; }
@@ -28,7 +30,7 @@ namespace CSVToDBWithElasticIndexing
         public static ElasticClient ElasticSearchClient { get; set; }
         public AppResources()
         {
-            SearchResultsCount = 0;
+            SearchResultsCount = searchResultsCount;
         }
     }
 

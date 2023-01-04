@@ -8,14 +8,28 @@ using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
+using System.Resources;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace CSVToDBWithElasticIndexing
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    public class CheckedColumn
+    {
+        public CheckedColumn(bool isChecked, string name)
+        {
+            this.IsChecked = isChecked;
+            this.Name = name;
+        }
+
+        public Boolean IsChecked { get; set; }
+        public String Name { get; set; }
+    }
     public partial class MainWindow : Window
     {
 
@@ -27,18 +41,21 @@ namespace CSVToDBWithElasticIndexing
         private void Grid_Loaded(object sender, RoutedEventArgs e)
         {
             Settings.ReadConfigIni();
-            AppResources.TableIsIndexed = false;
-            AppResources.dBaseConnection = new SQLiteConnection();
-            AppResources.dBaseFileName = "sampleDB.db";
-            DBStatusLabel.Content = "DB Disconnected";
+            AppResources.DBaseConnection = new SQLiteConnection();
             AppResources.ElasticSearchClient = ElasticsearchHelper.GetESClient();
-            var response = AppResources.ElasticSearchClient.ClusterHealth(new ClusterHealthRequest() { WaitForStatus = WaitForStatus.Red });
-            ElasticStatusLabel.Content = $"Elastic status {response.Status}";
+            RefreshStatusStringLabels();
             Post.TypesOfFields = new List<Type>();
             Post.FieldsToIndex = new List<FieldsToIndexSelection>();
         }
 
-        private void Button_OpenCSV_Click(object sender, RoutedEventArgs e)
+       private void RefreshStatusStringLabels()
+        {
+            DBStatusLabel.Content = $"DB {AppResources.DBaseConnection.State}";
+            var response = AppResources.ElasticSearchClient.Cluster.Health(new ClusterHealthRequest() { WaitForStatus = WaitForStatus.Red });
+            ElasticStatusLabel.Content = $"Elastic status {response.Status}";
+        }
+
+        private void ButtonOpenCSV_Click(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new OpenFileDialog
             {
@@ -48,14 +65,14 @@ namespace CSVToDBWithElasticIndexing
                 return;
             if (CSVReader.OpenFile(openFileDialog.FileName))
             {
-                DBStatusLabel.Content = "DB Connected";
                 RefreshDataGridView();
             }
             ClearDataGridSearchResult();
             RefreshComboBox();
+            RefreshStatusStringLabels();
         }
 
-        private void Button_OpenDB_Click(object sender, RoutedEventArgs e)
+        private void ButtonOpenDB_Click(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new OpenFileDialog
             {
@@ -63,10 +80,11 @@ namespace CSVToDBWithElasticIndexing
             };
             if (openFileDialog.ShowDialog() == false)
                 return;
-            DBStatusLabel.Content = DBase.OpenFile(openFileDialog.FileName) ? "DB Connected" : "DB Disconnected";
+            DBase.OpenFile(openFileDialog.FileName);
             RefreshDataGridView();
             ClearDataGridSearchResult();
             RefreshComboBox();
+            RefreshStatusStringLabels();
         }
         internal void ClearDataGridSearchResult()
         {
@@ -74,30 +92,22 @@ namespace CSVToDBWithElasticIndexing
         }
         private void RefreshComboBox()
         {
-            HeadersComboBox.ItemsSource = Post.FieldsToIndex.Where(x => x.name.ToLower() != "id");
-        }
-
-        public class CheckedColumn
-        {
-            public CheckedColumn(bool isChecked, string name)
+            var exludeFields = new List<string>();
+            for (int i = 0; i < Post.FieldsCount; i++)
             {
-                this.IsChecked = isChecked;
-                this.Name = name;
-            }
-
-            public Boolean IsChecked { get; set; }
-            public String Name { get; set; }
+                if (Post.TypesOfFields[i] == typeof(DateTime)) exludeFields.Add(Post.FieldsToIndex[i].name);
+            } 
+            // removes id and datetime columns from selection of indexing columns
+            HeadersComboBox.ItemsSource = Post.FieldsToIndex.Where(x => (x.name.ToLower() != "id" && !exludeFields.Contains(x.name))); 
         }
-
-
-
         internal void RefreshDataGridView()
         {
-            var sQLiteDataAdapter = new SQLiteDataAdapter($"SELECT * FROM {Path.GetFileNameWithoutExtension(AppResources.dBaseFileName)}", AppResources.dBaseConnection);
+            var sQLiteDataAdapter = new SQLiteDataAdapter($"SELECT * FROM {Path.GetFileNameWithoutExtension(AppResources.DBaseFileName)}", AppResources.DBaseConnection);
             var dataSet = new DataSet();
             sQLiteDataAdapter.Fill(dataSet);
             DataGridSource.ItemsSource = dataSet.Tables[0].DefaultView;
         }
+
         private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
             if (AppResources.TableIsIndexed == false)
@@ -106,49 +116,18 @@ namespace CSVToDBWithElasticIndexing
             }
             else
             {
-                var searchResult = ElasticsearchHelper.SearchDocument(AppResources.ElasticSearchClient, AppResources.indexName, textBox1.Text.ToLower());
-                var dataSet = new DataSet();
-                dataSet.Tables.Add(new DataTable());
-                dataSet.Tables[0].Columns.Add("id");
-                for (int i = 0; i < Post.FieldsCount; i++)
-                {
-                    if (!Post.FieldsToIndex[i].isChecked)
-                    {
-                        continue;
-                    }
-                    dataSet.Tables[0].Columns.Add(Post.FieldsToIndex[i].name);
-                }
-                var columnsNumber = 0;
-                if (searchResult.Count > 0)
-                {
-                    columnsNumber = searchResult[0].ItemsToIndex.Count;
-                }
-                foreach (var result in searchResult)
-                {
-                    DataRow row = dataSet.Tables[0].NewRow();
-                    row.BeginEdit();
-                    row["id"] = result.Id;
-                    for (int i = 0; i < columnsNumber; i++)
-                    {
-                        row[dataSet.Tables[0].Columns[i+1]] = result.ItemsToIndex[i];
-                    }
-                    row.EndEdit();
-                    dataSet.Tables[0].Rows.Add(row);
-                }
+                var searchResult = ElasticsearchHelper.SearchDocument(AppResources.ElasticSearchClient, AppResources.IndexName, textBox1.Text.ToLower());
+                var dataSet = DBase.GetSearchResultsTable(searchResult);
                 dataGridSearchResult.ItemsSource = dataSet.Tables[0].DefaultView;
             }
-        }
-        private void TextBox1_Loaded(object sender, RoutedEventArgs e)
-        {
-            textBox1.SelectAll();
         }
 
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
             var selectedRecords = dataGridSearchResult.SelectedItems
-                .OfType<DataRowView>().Select(x => Int64.Parse((string)x.Row[0]))
+                .OfType<DataRowView>().Select(x => (long)x.Row[0])
                 .ToArray();
-            ElasticsearchHelper.DeleteDocument(AppResources.ElasticSearchClient, AppResources.indexName, selectedRecords);
+            ElasticsearchHelper.DeleteDocument(AppResources.ElasticSearchClient, AppResources.IndexName, selectedRecords);
             DBase.DeleteDBaseRow(selectedRecords);
             RefreshDataGridView();
             SearchButton_Click(sender, e);
@@ -169,17 +148,6 @@ namespace CSVToDBWithElasticIndexing
             comboBox.SelectedItem = null;
         }
 
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            AppResources.dBaseConnection.Dispose();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            Application.Current.Shutdown();
-            Logging.Write("app closed");
-            return;
-        }
-
         private void IndexingButton_Click(object sender, RoutedEventArgs e)
         {
             if (AppResources.ElasticSearchClient == null)
@@ -188,9 +156,8 @@ namespace CSVToDBWithElasticIndexing
             }
             else
             {
-                ElasticsearchHelper.CreateDocument(AppResources.ElasticSearchClient, AppResources.indexName);
+                ElasticsearchHelper.CreateDocument(AppResources.ElasticSearchClient, AppResources.IndexName);
             }
-
         }
 
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
@@ -206,6 +173,16 @@ namespace CSVToDBWithElasticIndexing
         private void StrongSearchCheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
             ElasticsearchHelper.textQueryType = TextQueryType.PhrasePrefix;
+        }
+        
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            AppResources.DBaseConnection.Dispose();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            Application.Current.Shutdown();
+            Logging.Write("app closed normally");
+            return;
         }
     }
 }

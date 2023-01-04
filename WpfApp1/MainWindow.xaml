@@ -25,18 +25,19 @@
                 <ImageBrush ImageSource="/settings.png" TileMode="None"/>
             </Button.Background>
         </Button>
-        <Button Content="Открыть *.CSV" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.522,0.557" Width="92" Height="20" Click="Button_OpenCSV_Click"/>
-        <Button Content="Open *.DB" Margin="108,10,0,0" VerticalAlignment="Top" Height="20" HorizontalAlignment="Left" Width="80" Click="Button_OpenDB_Click"/>
+        <Button Content="Открыть *.CSV" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.522,0.557" Width="92" Height="20" Click="ButtonOpenCSV_Click"/>
+        <Button Content="Open *.DB" Margin="108,10,0,0" VerticalAlignment="Top" Height="20" HorizontalAlignment="Left" Width="80" Click="ButtonOpenDB_Click"/>
 
         <DataGrid x:Name="DataGridSource" x:FieldModifier="public" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,35,10,2" Grid.ColumnSpan="2" Background="White"/>
 
 
         <Button x:Name="searchButton" Content="Искать" Margin="10,0,0,0" VerticalAlignment="Center" RenderTransformOrigin="0.523,0.463" Height="20" HorizontalAlignment="Left" Width="61" Grid.Column="1" Grid.Row="1" Click="SearchButton_Click" />
-        <TextBox x:Name="textBox1" Margin="10,0,110,0" TextWrapping="Wrap" Text="Введите текст для поиска" Height="18" VerticalAlignment="Center" Grid.Row="1" Loaded="TextBox1_Loaded"/>
+        <TextBox x:Name="textBox1" Margin="10,0,110,0" TextWrapping="Wrap" Text="Введите текст для поиска" Height="18" VerticalAlignment="Center" Grid.Row="1"/>
         <DataGrid x:Name="dataGridSearchResult" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,3,10,63" Grid.ColumnSpan="2" Background="White" Grid.Row="2"/>
-        <StatusBar x:Name="StatusBar1" Height="24" VerticalAlignment="Bottom" Grid.ColumnSpan="2" Grid.Row="2">
-            <Label x:Name="DBStatusLabel" Content="DB Status" Height="23"/>
-            <Label x:Name="ElasticStatusLabel" Content="Elastic Status" Height="23"/>
+        <StatusBar x:Name="StatusBar1" Height="29" VerticalAlignment="Bottom" Grid.ColumnSpan="2" Grid.Row="2">
+            <Label x:Name="DBStatusLabel" Height="26" Content="DB Status">                
+            </Label>
+            <Label x:Name="ElasticStatusLabel" Content="Elastic Status" Height="26"/>
         </StatusBar>
         <Button Content="Удалить выбранные записи" HorizontalAlignment="Left" Margin="10,0,0,38" Width="185" Height="20" VerticalAlignment="Bottom" Grid.Row="2" Click="Delete_Click"/>
         <ComboBox x:Name="HeadersComboBox" Margin="434,10,0,0" VerticalAlignment="Top" AutomationProperties.IsColumnHeader="True" SelectionChanged="OnComboBoxSelectionChanged" Height="20" HorizontalAlignment="Left" Width="120">

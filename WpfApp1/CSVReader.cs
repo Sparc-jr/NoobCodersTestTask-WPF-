@@ -14,14 +14,19 @@ namespace CSVToDBWithElasticIndexing
         public static bool OpenFile(string fileName)
         {
             AppResources.csvFileName = fileName;
-            AppResources.dBaseFileName = $"{Path.GetDirectoryName(fileName)}\\{Path.GetFileNameWithoutExtension(fileName.Replace(' ','_').Replace('-', '_'))}.db";
-            AppResources.indexName = Path.GetFileNameWithoutExtension(fileName).ToLower();
+            MakeValidDBaseName(fileName);
             Post.Clear();
             CSVReader.ReadCSVHeader(fileName);
             CSVReader.ReadCSVTypes(fileName);
-            AppResources.dBaseConnection.Dispose();
-            if (DBase.ExportToDBase(AppResources.dBaseFileName) == false) return false;
-            return CSVReader.ReadCSVandSaveToDataBase(fileName, AppResources.dBaseFileName);
+            AppResources.DBaseConnection.Dispose();
+            if (DBase.ExportToDBase(AppResources.DBaseFileName) == false) return false;
+            return CSVReader.ReadCSVandSaveToDataBase(fileName, AppResources.DBaseFileName);
+        }
+
+        private static void MakeValidDBaseName(string fileName)
+        {
+            AppResources.DBaseFileName = $"{Path.GetDirectoryName(fileName)}\\{Path.GetFileNameWithoutExtension(fileName.Replace(' ', '_').Replace('-', '_'))}.db";
+            if (int.TryParse(AppResources.DBaseFileName[0].ToString(), out _)) AppResources.DBaseFileName = '_' + AppResources.DBaseFileName;
         }
 
         public static bool ReadCSVHeader(string fileCSVPath)
@@ -36,7 +41,7 @@ namespace CSVToDBWithElasticIndexing
                     var fieldsNames = csv.HeaderRecord.ToList();
                     foreach (var field in fieldsNames)
                     {
-                        Post.FieldsToIndex.Add(new FieldsToIndexSelection(false, field.Replace(' ','_')));
+                        Post.FieldsToIndex.Add(new FieldsToIndexSelection(false, field.Replace(' ','_').ToLower()));
                     }
                     Post.FieldsCount = Post.FieldsToIndex.Count;
                 }
@@ -92,7 +97,7 @@ namespace CSVToDBWithElasticIndexing
             catch (SQLiteException ex)
             {
                 MessageBox.Show("Error: " + ex.Message);
-                AppResources.dBaseConnection.Close();
+                AppResources.DBaseConnection.Close();
                 return false;
 
             }

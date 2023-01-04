@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 
@@ -13,7 +14,7 @@ namespace CSVToDBWithElasticIndexing
 
         public static bool OpenFile(string fileName)
         {
-            AppResources.dBaseFileName = fileName;
+            AppResources.DBaseFileName = fileName;
             ConnectDBase();
             ReadDBaseHeader();
             MainWindow mainWindow = new ();
@@ -25,12 +26,11 @@ namespace CSVToDBWithElasticIndexing
         public static void ReadDBaseHeader()
         {
             Post.Clear();
-            var sqlCommand = new SQLiteCommand($"SELECT * FROM {Path.GetFileNameWithoutExtension(AppResources.dBaseFileName)}", AppResources.dBaseConnection);
+            var sqlCommand = new SQLiteCommand($"SELECT * FROM {Path.GetFileNameWithoutExtension(AppResources.DBaseFileName)}", AppResources.DBaseConnection);
             var dataReader = sqlCommand.ExecuteReader();
             Post.FieldsCount = dataReader.FieldCount;
             for (var i = 0; i < Post.FieldsCount; i++)
             {
-                //Post.namesOfFields.Add(dataReader.GetName(i));
                 Post.TypesOfFields.Add(TypesResponser.GetDBaseColumnType(dataReader.GetDataTypeName(i)));
                 Post.FieldsToIndex.Add(new(false, dataReader.GetName(i)));
             }
@@ -48,7 +48,7 @@ namespace CSVToDBWithElasticIndexing
                 var dialogResult = Messages.OverWriteExistedDBase(dBaseName);
                 if (dialogResult == Messages.DialogResult.Yes)
                 {
-                    AppResources.dBaseConnection.Dispose();
+                    AppResources.DBaseConnection.Dispose();
                     GC.Collect();
                     GC.WaitForPendingFinalizers();
                     File.Delete(dBaseName);
@@ -67,9 +67,9 @@ namespace CSVToDBWithElasticIndexing
             try
             {
                 var sQLCommand = new SQLiteCommand();
-                AppResources.dBaseConnection = new SQLiteConnection("Data Source=" + dBaseName + ";Version=3;");
-                AppResources.dBaseConnection.Open();
-                sQLCommand.Connection = AppResources.dBaseConnection;
+                AppResources.DBaseConnection = new SQLiteConnection("Data Source=" + dBaseName + ";Version=3;");
+                AppResources.DBaseConnection.Open();
+                sQLCommand.Connection = AppResources.DBaseConnection;
                 var commandLine = new StringBuilder();
                 commandLine.Append("CREATE TABLE IF NOT EXISTS ");
                 commandLine.Append(Path.GetFileNameWithoutExtension(dBaseName));
@@ -93,11 +93,7 @@ namespace CSVToDBWithElasticIndexing
                 sQLCommand.ExecuteNonQuery();
                 commandLine.Clear();
                 commandLine.Append($"CREATE UNIQUE INDEX record ON {Path.GetFileNameWithoutExtension(dBaseName)}(");
-                for (int i = 0; i < Post.FieldsCount; i++)
-                {
-                    commandLine.Append(Post.FieldsToIndex[i].name);
-                    if (i < Post.FieldsCount - 1) commandLine.Append(", ");
-                }
+                commandLine.AppendJoin(", ", Post.FieldsToIndex.Select(x => x.name));
                 commandLine.Append(')');
                 sQLCommand.CommandText = commandLine.ToString();
                 sQLCommand.ExecuteNonQuery();
@@ -115,13 +111,13 @@ namespace CSVToDBWithElasticIndexing
             try
             {
                 var sQLCommand = new SQLiteCommand();
-                AppResources.dBaseConnection.Dispose();
-                AppResources.dBaseConnection = new SQLiteConnection("Data Source=" + AppResources.dBaseFileName + ";Version=3;New=False;Compress=True;");
-                AppResources.dBaseConnection.Open();
+                AppResources.DBaseConnection.Dispose();
+                AppResources.DBaseConnection = new SQLiteConnection("Data Source=" + AppResources.DBaseFileName + ";Version=3;New=False;Compress=True;");
+                AppResources.DBaseConnection.Open();
             }
             catch (SQLiteException ex)
             {
-                AppResources.dBaseConnection.Dispose();
+                AppResources.DBaseConnection.Dispose();
                 Messages.ErrorMessage("Error: " + ex.Message);
                 return false;
             }
@@ -130,14 +126,14 @@ namespace CSVToDBWithElasticIndexing
 
         public static void AddDataToBase(string dBaseName, Post record)
         {
-            if (AppResources.dBaseConnection.State != ConnectionState.Open)
+            if (AppResources.DBaseConnection.State != ConnectionState.Open)
             {
                 Messages.ErrorMessage("No connection with database");
                 return;
             }
             var sQLCommand = new SQLiteCommand
             {
-                Connection = AppResources.dBaseConnection
+                Connection = AppResources.DBaseConnection
             };
             var commandLine = new StringBuilder();
             try
@@ -148,14 +144,8 @@ namespace CSVToDBWithElasticIndexing
                     commandLine.Append($"'{Post.FieldsToIndex[i].name}'");
                     if (i < Post.FieldsCount - 1) commandLine.Append(", ");
                 }
-
-
                 commandLine.Append(") Values (");
-                for (int i = 0; i < Post.FieldsCount; i++)
-                {
-                    commandLine.Append($"@{Post.FieldsToIndex[i].name}");
-                    if (i < Post.FieldsCount - 1) commandLine.Append(", ");
-                }
+                commandLine.AppendJoin(", ", Post.FieldsToIndex.Select(x => $"@{x.name}"));
                 commandLine.Append(')');
                 for (int i = 0; i < Post.FieldsCount; i++)
                 {
@@ -166,11 +156,9 @@ namespace CSVToDBWithElasticIndexing
                     };
                     sQLCommand.Parameters.Add(sqlParameter);
                 }
-
                 sQLCommand.CommandText = commandLine.ToString();
                 sQLCommand.CommandType = CommandType.Text;
                 sQLCommand.ExecuteNonQuery();
-
             }
             catch (SQLiteException ex)
             {
@@ -181,15 +169,14 @@ namespace CSVToDBWithElasticIndexing
         {
             var fields = new StringBuilder();
             fields.AppendJoin(", ", fieldsNames);
-            var sQLiteDataAdapter = new SQLiteDataAdapter($"SELECT id, {fields} FROM {Path.GetFileNameWithoutExtension(AppResources.dBaseFileName)}",
-                                                                        AppResources.dBaseConnection);
+            var sQLiteDataAdapter = new SQLiteDataAdapter($"SELECT id, {fields} FROM {Path.GetFileNameWithoutExtension(AppResources.DBaseFileName)}",
+                AppResources.DBaseConnection);
             var dataSet = new DataSet();
             sQLiteDataAdapter.Fill(dataSet);
             var postsTable = new List<Record>();
             foreach (DataRow row in dataSet.Tables[0].Rows)
             {
                 var items = new List<object>();
-                //items.Add((long)row["id"]);
                 for (int i = 0; i < Post.FieldsCount; i++)
                 {
                     if (!Post.FieldsToIndex[i].isChecked)
@@ -209,11 +196,11 @@ namespace CSVToDBWithElasticIndexing
             {
                 var sQLCommand = new SQLiteCommand
                 {
-                    Connection = AppResources.dBaseConnection
+                    Connection = AppResources.DBaseConnection
                 };
                 foreach (long id in idList)
                 {
-                    sQLCommand.CommandText = $"DELETE FROM {Path.GetFileNameWithoutExtension(AppResources.dBaseFileName)} WHERE id like {id}";
+                    sQLCommand.CommandText = $"DELETE FROM {Path.GetFileNameWithoutExtension(AppResources.DBaseFileName)} WHERE id like {id}";
                     sQLCommand.ExecuteNonQuery();
                 }
                 return true;
@@ -223,6 +210,21 @@ namespace CSVToDBWithElasticIndexing
                 Messages.ErrorMessage("Error: " + ex.Message);
                 return false;
             }
+        }
+
+        public static DataSet GetSearchResultsTable(List<Record> searchResult)
+        {
+            var idList = new StringBuilder();
+            for (int i = 0; i < searchResult.Count; i++)
+            {
+                idList.Append(searchResult[i].Id);
+                if (i< searchResult.Count - 1) idList.Append(',');
+            }
+            var sQLiteDataAdapter = new SQLiteDataAdapter($"SELECT * FROM {Path.GetFileNameWithoutExtension(AppResources.DBaseFileName)} " +
+                $"WHERE id IN ({idList})", AppResources.DBaseConnection);
+            var dataSet = new DataSet();
+            sQLiteDataAdapter.Fill(dataSet);
+            return dataSet;
         }
     }
 }

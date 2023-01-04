@@ -22,7 +22,7 @@ namespace CSVToDBWithElasticIndexing
                 var connectionSettings = new ConnectionSettings(connectionPool)
                     .DisableDirectStreaming()
                     .EnableApiVersioningHeader()
-                    .DefaultIndex(AppResources.indexName)
+                    .DefaultIndex(AppResources.IndexName)
                     .ThrowExceptions()
                     .EnableDebugMode();
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -40,10 +40,11 @@ namespace CSVToDBWithElasticIndexing
         {
             try
             {
-                var mainWindow = new MainWindow();
+                AppResources.IndexName = Path.GetFileNameWithoutExtension(AppResources.DBaseFileName).ToLower();
+                if (AppResources.IndexName[0] == '_') AppResources.IndexName = "index" + AppResources.IndexName;
                 elasticClient.DeleteIndex(indexName);
                 var postsToIndex = DBase.PrepareDataForIndexing(Post.FieldsToIndex.Where(x => x.isChecked).Select(x => x.name).ToArray());
-                var response = elasticClient.IndexMany(postsToIndex, AppResources.indexName);
+                var response = elasticClient.IndexMany(postsToIndex, AppResources.IndexName);
                 if (response.IsValid) Messages.InfoMessage("Данные успешно импортированы. Индекс создан");
                 else Messages.ErrorMessage(response.ToString());
                 AppResources.TableIsIndexed = true;
@@ -81,5 +82,4 @@ namespace CSVToDBWithElasticIndexing
             }
         }
     }
-
 }
